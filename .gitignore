@@ -47,3 +47,6 @@ cache/
 # Ignore tmp folders
 /tmp/
 **/tmp/
+
+
+.editorconfig
