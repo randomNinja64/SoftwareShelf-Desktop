@@ -1,0 +1,49 @@
+# Ignore Visual Studio temporary files, build 
+
+results
+
+, and
+# .NET Core build results
+[Bb]in/
+[Oo]bj/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore the packages folder and all its subfolders
+/packages/
+**/packages/
+
+# Ignore NuGet packages
+*.nupkg
+# Uncomment if using NuGet Package Restore
+# packages/*
+# It's a good idea to comment these out if the filter above is active:
+# !packages/repositories.config
+
+# Ignore Rider project files
+.idea/
+
+# Ignore Visual Studio Code workspace settings
+.vscode/
+
+# Ignore Visual Studio folder and all its subfolders
+.vs/
+**/.vs/
+
+# Ignore Mac system files
+.DS_Store
+
+# Ignore temp folders
+temp/
+**/temp/
+
+# Ignore cache folders
+cache/
+**/cache/
+
+# Ignore tmp folders
+/tmp/
+**/tmp/
