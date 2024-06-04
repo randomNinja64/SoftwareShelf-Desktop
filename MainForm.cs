@@ -35,11 +35,11 @@ namespace SoftwareShelf_Desktop
             // Set the form object
             frmObj = this;
 
-            // Check if turboboost exists in config and add it, set to true if not
+            // Check if AriaMode exists in config and add it, set to true if not
             #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-            if (Properties.Settings.Default.TurboBooster == null)
+            if (Properties.Settings.Default.AriaMode == null)
             {
-                Properties.Settings.Default.TurboBooster = true;
+                Properties.Settings.Default.AriaMode = true;
             }
 
             // If a download path hasn't been set, prompt the user for one
@@ -79,24 +79,52 @@ namespace SoftwareShelf_Desktop
             // Set the Data Source of the Download Manager to the Binding Source
             downloadsDataGridView.DataSource = downloadBindingSource;
 
-            // Set boostChk based on TurboBooster boolean
-            boostChk.Checked = Properties.Settings.Default.TurboBooster;
+            // Set boostChk based on AriaMode boolean
+            boostChk.Checked = Properties.Settings.Default.AriaMode;
 
             // Set DLThreads Number
             threadsNum.Value = Properties.Settings.Default.DLThreads;
+
+            // Set type drop down
+            typeDropDown.SelectedIndex = 4;
 
         }
 
         private void searchBtn_Click(object sender, EventArgs e)
         {
-            // Switch To Search Tab
-            controlTabs.SelectedTab = searchTab;
+            // Calculate internal type for archive handler
+            string mediaType = "";
+            switch (typeDropDown.SelectedItem.ToString())
+            {
+                case "Audio":
+                    mediaType = "audio";
+                    break;
+                case "Books":
+                    mediaType = "texts";
+                    break;
+                case "Images":
+                    mediaType = "image";
+                    break;
+                case "Movies":
+                    mediaType = "movies";
+                    break;
+                case "Software":
+                    mediaType = "software";
+                    break;
+                default:
+                    mediaType = string.Empty;
+                    break;
+            }
+
 
             // Clear Search Results
             resultsGrid.Rows.Clear();
 
+            // Clear Description Text
+            resultDescription.Text = "";
+
             // Perform Search With ArchiveHandler
-            List<ArchiveHandler.ArchiveItem> results = ArchiveHandler.Search(searchTxtBox.Text);
+            List<ArchiveHandler.ArchiveItem> results = ArchiveHandler.Search(searchTxtBox.Text, mediaType, creatorTxt.Text, topicTxt.Text, yearTxt.Text);
 
             // If results is null, break
             if (results == null)
@@ -109,7 +137,7 @@ namespace SoftwareShelf_Desktop
             {
                 foreach (ArchiveHandler.ArchiveItem result in results)
                 {
-                    resultsGrid.Rows.Add(result.title, result.size, result.identifier, result.description, result.downloads);
+                    resultsGrid.Rows.Add(result.title, result.avgRating.ToString(), result.size, result.identifier, result.description, result.downloads);
                 }
             }
         }
@@ -132,12 +160,12 @@ namespace SoftwareShelf_Desktop
         private void resultsGrid_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
             // Set the description textbox's text to the description cell of the currently selected row
-            resultDescription.Text = resultsGrid.Rows[e.RowIndex].Cells[3].Value.ToString();
+            resultDescription.Text = resultsGrid.Rows[e.RowIndex].Cells[4].Value.ToString();
 
             if (e.RowIndex != -1)
             {
                 // Get identifier of selected item
-                string identifier = resultsGrid.Rows[e.RowIndex].Cells[2].Value.ToString();
+                string identifier = resultsGrid.Rows[e.RowIndex].Cells[3].Value.ToString();
 
                 // Download thumbnail
                 resultPreview.ImageLocation = "http://archive.org/download/" + identifier + "/__ia_thumb.jpg";
@@ -146,7 +174,7 @@ namespace SoftwareShelf_Desktop
                 downloadButton.Enabled = true;
 
                 // Check the size of the item
-                long sizeInKiB = Convert.ToInt64(resultsGrid.Rows[e.RowIndex].Cells[1].Value);
+                long sizeInKiB = Convert.ToInt64(resultsGrid.Rows[e.RowIndex].Cells[2].Value);
                 double sizeInGB = sizeInKiB / (1024.0 * 1024.0); // Convert KiB to GB
 
                 // Enable or disable the zip button based on the size
@@ -169,7 +197,7 @@ namespace SoftwareShelf_Desktop
                 // Enumerate items in Downloads tab before dialog
                 int numDownloads = downloadHandler.Downloads.Count;
                 
-                DownloadForm downloadForm = new DownloadForm(resultsGrid.SelectedRows[0].Cells[2].Value.ToString(), downloadHandler, progressTimer);
+                DownloadForm downloadForm = new DownloadForm(resultsGrid.SelectedRows[0].Cells[3].Value.ToString(), downloadHandler, progressTimer);
                 downloadForm.ShowDialog();
 
                 // Change selected tab to downloads tab if items were downloaded
@@ -334,15 +362,15 @@ namespace SoftwareShelf_Desktop
 
         private void boostChk_CheckedChanged(object sender, EventArgs e)
         {
-            //If checked, enable the TURBO BOOSTER!!!!
+            //If checked, enable aria2
             if (boostChk.Checked)
             {
-                Properties.Settings.Default.TurboBooster = true;
+                Properties.Settings.Default.AriaMode = true;
                 Properties.Settings.Default.Save();
             }
             else
             {
-                Properties.Settings.Default.TurboBooster = false;
+                Properties.Settings.Default.AriaMode = false;
                 Properties.Settings.Default.Save();
             }
         }
@@ -366,7 +394,7 @@ namespace SoftwareShelf_Desktop
                 int numDownloads = downloadHandler.Downloads.Count;
 
                 // Get identifier
-                string itemIdentifier = resultsGrid.SelectedRows[0].Cells[2].Value.ToString();
+                string itemIdentifier = resultsGrid.SelectedRows[0].Cells[3].Value.ToString();
 
                 // Create a filename
                 string fileName = itemIdentifier + ".zip";
@@ -405,6 +433,32 @@ namespace SoftwareShelf_Desktop
             // Save new value to settings
             Properties.Settings.Default.DLThreads = (int)threadsNum.Value;
             Properties.Settings.Default.Save();
+        }
+
+        private void yearTxt_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow control keys like Backspace
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void yearTxt_TextChanged(object sender, EventArgs e)
+        {
+            if (yearTxt.Text.Length > 4)
+            {
+                // If the input exceeds 4 digits, truncate the text
+                yearTxt.Text = yearTxt.Text.Substring(0, 4);
+                // Move the cursor to the end of the text
+                yearTxt.SelectionStart = yearTxt.Text.Length;
+            }
+
+            // Ensure the content is numeric
+            if (!System.Text.RegularExpressions.Regex.IsMatch(yearTxt.Text, "^[0-9]*$"))
+            {
+                yearTxt.Text = "";
+            }
         }
     }
     }

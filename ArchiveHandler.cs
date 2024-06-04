@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Management;
 using System.Net;
 using System.Windows.Forms;
 
@@ -15,22 +16,59 @@ namespace SoftwareShelf_Desktop
             public string title;
             public string description;
             public string identifier;
+            public double avgRating;
             public Int64 downloads;
             public Int64 size;
         }
 
         // Function to perform searches on Archive.org
-        public static List<ArchiveItem> Search(string query)
+        public static List<ArchiveItem> Search(string query, string mediaType = "data", string creatorName = "", string topicName = "", string yearText = "")
         {
             //If query is blank, error out
-            if (query == "")
+            if (query == "" && creatorName == "" && topicName == "" && yearText == "")
             {
                 MessageBox.Show("Error 02: Search queries cannot be blank.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
 
+            string additionalQuery = "";
 
-            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+AND+mediatype:(software)&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&sort[]=&sort[]=&sort[]=&rows=100&output=json";
+            if (creatorName != "")
+            {
+                additionalQuery += "+AND+creator:(" + creatorName + ")";
+            }
+
+            if (topicName != "")
+            {
+                additionalQuery += "+AND+subject:(" + topicName + ")";
+            }
+
+            if (yearText != "")
+            {
+                additionalQuery += "+AND+year:(" + yearText + ")";
+            }
+
+            if (query == "")
+            {
+                if (yearText != "")
+                {
+                    query = yearText;
+                }
+                if (creatorName != "")
+                {
+                    query = creatorName;
+                }
+                if (topicName != "")
+                {
+                    query = topicName;
+                }
+            }
+
+            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+AND+mediatype:(" + mediaType + ")" + additionalQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&sort[]=&sort[]=&sort[]=&rows=100&output=json";
+
+           //MessageBox.Show(search_url);
+            Console.WriteLine(search_url);
+
             string results_json = "";
 
             // Create a list of ArchiveItems
@@ -61,10 +99,16 @@ namespace SoftwareShelf_Desktop
 
                 foreach (var item in results_array)
                 {
+                    // Skip items that are access restricted
+                    if (item["access-restricted-item"] != null && (bool)item["access-restricted-item"])
+                    {
+                        continue;
+                    }
+
                     // Create a new ArchiveItem
                     ArchiveItem result = new ArchiveItem
                     {
-                        title = item["title"].ToString(),   
+                        title = item["title"].ToString(),
                         identifier = item["identifier"].ToString(),
                         size = (Int64)item["item_size"] / 1024,
                         downloads = (Int64)item["downloads"]
@@ -85,10 +129,18 @@ namespace SoftwareShelf_Desktop
                         result.description = "No description found.";
                     }
 
-                    // Add ArchiveItem to results list
+                    // If no value exists for avg_rating, set it to 0
+                    if (item["avg_rating"] != null)
+                    {
+                        double.TryParse(item["avg_rating"].ToString(), out result.avgRating);
+                    }
+                    else
+                    {
+                        result.avgRating = 0;
+                    }
+
                     results.Add(result);
                 }
-
                 return results;
             }
             catch
@@ -136,6 +188,13 @@ namespace SoftwareShelf_Desktop
                 // Loop through each file in the files array
                 foreach (var file in files_array)
                 {
+                    // Check if the file is private
+                    if (file["private"] != null && file["private"].ToObject<bool>() == true)
+                    {
+                        // Skip this file
+                        continue;
+                    }
+
                     availableFiles.Add(file["name"].ToString());
                 }
 

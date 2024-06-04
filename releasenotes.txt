@@ -1,0 +1,17 @@
+Release Notes 1.3.0:
+- Added variable thread count to aria2 mode
+- Added ZIP download option
+- aria2 mode now enabled by default
+- Automatic mode improved (now auto-highlights all except sqlite, xml, image, and torrent files)
+- Download button no longer enabled when no items selected
+- Search button now aligned with search box
+
+Release Notes 1.3.1:
+- Fixed visual bug on downloads tab
+- Fixed bug where aria2 would not enable
+
+Release Notes 1.4.0:
+- Added Rating System
+- Prevented restricted access items from showing in search results
+- Search UI overhaul
+- ZIP files now download to the downloads folder, no subdirectory.

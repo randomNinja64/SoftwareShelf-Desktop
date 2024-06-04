@@ -1,18 +1,11 @@
-﻿using SoftwareShelf_Desktop.Properties;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Ports;
 using System.Linq;
 using System.Net;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SoftwareShelf_Desktop
 {
@@ -56,11 +49,15 @@ namespace SoftwareShelf_Desktop
             if (!Properties.Settings.Default.AriaMode)
             {
                 downloadItem.WebClient = new WebClient();
-                // Download 
-                destination = destination + "\\" + downloadItem.downloadIdentifier;
-                // Create destination directory
-                Directory.CreateDirectory(destination);
-                // Download file
+
+                if (!downloadItem.downloadUrl.ToString().StartsWith("http://archive.org/compress"))
+                {
+                    // Download 
+                    destination = destination + "\\" + downloadItem.downloadIdentifier;
+                    // Create destination directory
+                    Directory.CreateDirectory(destination);
+                    // Download file
+                }
                 downloadItem.WebClient.DownloadFileAsync(downloadItem.downloadUrl, destination + "\\" + downloadItem.fileName);
                 // Start Stopwatch
                 downloadItem.downloadTime.Start();
@@ -82,7 +79,13 @@ namespace SoftwareShelf_Desktop
             string aria2cPath = "aria2c.exe";
             string downloadUrl = downloadItem.downloadUrl.ToString();
             string fileName = downloadItem.fileName;
-            string downloadPath = Path.Combine(destination, downloadItem.downloadIdentifier);
+            string downloadPath = destination;
+
+            // Set download path based on whether or not the user is downloading a ZIP of an archive identifier.
+            if (!downloadItem.downloadUrl.ToString().StartsWith("http://archive.org/compress"))
+            {
+                downloadPath = Path.Combine(destination, downloadItem.downloadIdentifier);
+            }
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = aria2cPath;
