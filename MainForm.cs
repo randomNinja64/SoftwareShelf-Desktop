@@ -178,7 +178,7 @@ namespace SoftwareShelf_Desktop
                 double sizeInGB = sizeInKiB / (1024.0 * 1024.0); // Convert KiB to GB
 
                 // Enable or disable the zip button based on the size
-                if (sizeInGB < 50)
+                if (sizeInGB < 40)
                 {
                     zipBtn.Enabled = true;
                 }

@@ -31,70 +31,129 @@ namespace SoftwareShelf_Desktop
                 return null;
             }
 
+            // Create a list of ArchiveItems
+            List<ArchiveItem> results = new List<ArchiveItem>();
+
+            // Build the Query
+            query = GetQuery(query, creatorName, topicName, yearText);
+            string additionalQuery = BuildAdditionalQuery(creatorName, topicName, yearText);
+
+            // Base URL for API
+            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+AND+mediatype:(" + mediaType + ")" + additionalQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&sort[]=&sort[]=&sort[]=&rows=100&output=json";
+
+            //MessageBox.Show(search_url);
+            Console.WriteLine("[Info] Searching:" + search_url);
+
+            string results_json = GetJsonResponse(search_url);
+
+            if (string.IsNullOrEmpty(results_json))
+            {
+                MessageBox.Show("Error 01: Error retrieving results. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            return ParseSearchResults(results_json);
+        }
+
+        // Function to get available files for an identifier on Archive.org
+        public static List<string> GetAvailableFiles(string identifier)
+        {
+            // Create a list of strings to store available files
+            //List<string> availableFiles = new List<string>();
+
+            // Create a string to store the URL to download the JSON response from
+            string metadata_url = "http://archive.org/metadata/" + identifier;
+
+            // Create a string to store the JSON response
+            string metadata_json = GetJsonResponse(metadata_url);
+
+            if (string.IsNullOrEmpty(metadata_json))
+            {
+                MessageBox.Show("Error 11: Error retrieving files. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            return ParseAvailableFiles(metadata_json);
+        }
+
+        private static string BuildAdditionalQuery(string creatorName, string topicName, string yearText)
+        {
+            // LOGGING
+            Console.WriteLine("[Info] Building additional query.");
+
             string additionalQuery = "";
 
-            if (creatorName != "")
+            if (!string.IsNullOrEmpty(creatorName))
             {
                 additionalQuery += "+AND+creator:(" + creatorName + ")";
             }
 
-            if (topicName != "")
+            if (!string.IsNullOrEmpty(topicName))
             {
                 additionalQuery += "+AND+subject:(" + topicName + ")";
             }
 
-            if (yearText != "")
+            if (!string.IsNullOrEmpty(yearText))
             {
                 additionalQuery += "+AND+year:(" + yearText + ")";
             }
 
-            if (query == "")
+            return additionalQuery;
+        }
+
+        private static string GetQuery(string query, string creatorName, string topicName, string yearText)
+        {
+            // LOGGING
+            Console.WriteLine("[Info] Grabbing query.");
+
+            if (string.IsNullOrEmpty(query))
             {
-                if (yearText != "")
+                if (!string.IsNullOrEmpty(yearText))
                 {
-                    query = yearText;
+                    return yearText;
                 }
-                if (creatorName != "")
+                if (!string.IsNullOrEmpty(creatorName))
                 {
-                    query = creatorName;
+                    return creatorName;
                 }
-                if (topicName != "")
+                if (!string.IsNullOrEmpty(topicName))
                 {
-                    query = topicName;
+                    return topicName;
                 }
             }
+            return query;
+        }
 
-            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+AND+mediatype:(" + mediaType + ")" + additionalQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&sort[]=&sort[]=&sort[]=&rows=100&output=json";
+        private static string GetJsonResponse(string url)
+        {
+            // LOGGING
+            Console.WriteLine("[Info] Getting JSON Response.");
 
-           //MessageBox.Show(search_url);
-            Console.WriteLine(search_url);
-
-            string results_json = "";
-
-            // Create a list of ArchiveItems
-            List<ArchiveItem> results = new List<ArchiveItem>();
-
-            // Try to download JSON response from search_url
             try
             {
                 using (WebClient client = new WebClient())
                 {
                     // Download JSON response from search_url
-                    results_json = client.DownloadString(search_url);
+                    return client.DownloadString(url);
                 }
             }
             catch
             {
-                // Show message that search failed
-                MessageBox.Show("Error 01: Error retrieving results. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
+        }
 
-            // Try to parse JSON response into JSON object
-            JObject results_obj = JObject.Parse(results_json);
+        private static List<ArchiveItem> ParseSearchResults(string resultsJson)
+        {
+            // LOGGING
+            Console.WriteLine("[Info] Parsing results.");
+
+            List<ArchiveItem> results = new List<ArchiveItem>();
 
             try
             {
+                // Try to parse JSON response into JSON object
+                JObject results_obj = JObject.Parse(resultsJson);
                 JArray results_array = (JArray)results_obj["response"]["docs"];
 
                 foreach (var item in results_array)
@@ -141,6 +200,7 @@ namespace SoftwareShelf_Desktop
 
                     results.Add(result);
                 }
+
                 return results;
             }
             catch
@@ -150,38 +210,17 @@ namespace SoftwareShelf_Desktop
             }
         }
 
-        // Function to get available files for an identifier on Archive.org
-        public static List<string> GetAvailableFiles(string identifier)
+        private static List<string> ParseAvailableFiles(string metadata_json)
         {
-            // Create a list of strings to store available files
-            List<string> availableFiles = new List<string>();
-
-            // Create a string to store the JSON response
-            string metadata_json = "";
-
-            // Create a string to store the URL to download the JSON response from
-            string metadata_url = "http://archive.org/metadata/" + identifier;
-
-            // Try to download JSON response from metadata_url
-            try
-            {
-                using (WebClient client = new WebClient())
-                {
-                    // Download JSON response from metadata_url
-                    metadata_json = client.DownloadString(metadata_url);
-                }
-            }
-            catch
-            {
-                // Show message that search failed
-                MessageBox.Show("Error 11: Error retrieving files. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            // Try to parse JSON response into JSON object
-            JObject files_obj = JObject.Parse(metadata_json);
+            // LOGGING
+            Console.WriteLine("[Info] Parsing available files.");
+            var availableFiles = new List<string>();
 
             try
             {
+                // Try to parse JSON response into JSON object
+                JObject files_obj = JObject.Parse(metadata_json);
+
                 // Get the files array from the JSON response
                 JArray files_array = (JArray)files_obj["files"];
 
