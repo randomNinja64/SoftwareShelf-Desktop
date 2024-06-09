@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 namespace SoftwareShelf_Desktop
 {
@@ -13,6 +10,10 @@ namespace SoftwareShelf_Desktop
         public string itemIdentifier;
         public DownloadHandler downloadHandler;
         public Timer progressTimer;
+
+        // Store files in private variable
+        private List<string> files;
+
         public DownloadForm()
         {
             InitializeComponent();
@@ -28,7 +29,7 @@ namespace SoftwareShelf_Desktop
         private void DownloadForm_Load(object sender, EventArgs e)
         {
             // Get available files using ArchiveHandler
-            List<string> files = ArchiveHandler.GetAvailableFiles(itemIdentifier);
+            files = ArchiveHandler.GetAvailableFiles(itemIdentifier);
 
             // Add files to listbox
             foreach (string file in files)
@@ -75,6 +76,21 @@ namespace SoftwareShelf_Desktop
 
             // Close Downloads Form
             this.Close();
+        }
+
+        private void filterTxt_TextChanged(object sender, EventArgs e)
+        {
+            // Get the filter text
+            string filter = filterTxt.Text.ToLower();
+
+            // Filter the items
+            var filteredItems = files
+                .Where(item => item.ToLower().Contains(filter))
+                .ToArray();
+
+            // Update filesListBox
+            filesListBox.Items.Clear();
+            filesListBox.Items.AddRange(filteredItems);
         }
     }
 }

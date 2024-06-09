@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
-using System.IO;
-using System.Management;
-using System.Threading;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SoftwareShelf_Desktop
 {
@@ -86,42 +80,55 @@ namespace SoftwareShelf_Desktop
             threadsNum.Value = Properties.Settings.Default.DLThreads;
 
             // Set type drop down
-            typeDropDown.SelectedIndex = 4;
+            typeDropDown.SelectedIndex = 5;
 
         }
 
-        private void searchBtn_Click(object sender, EventArgs e)
+        private string getMediaType(string mediaTypeIn)
         {
-            // Calculate internal type for archive handler
-            string mediaType = "";
-            switch (typeDropDown.SelectedItem.ToString())
+            switch (mediaTypeIn)
             {
+                case "All":
+                    return string.Empty;
                 case "Audio":
-                    mediaType = "audio";
-                    break;
+                    return "audio";
                 case "Books":
-                    mediaType = "texts";
-                    break;
+                    return "texts";
                 case "Images":
-                    mediaType = "image";
-                    break;
+                    return "image";
                 case "Movies":
-                    mediaType = "movies";
-                    break;
+                    return "movies";
                 case "Software":
-                    mediaType = "software";
-                    break;
+                    return "software";
                 default:
-                    mediaType = string.Empty;
-                    break;
+                    return string.Empty;
             }
+        }
 
-
+        private void clearShownItems()
+        {
             // Clear Search Results
             resultsGrid.Rows.Clear();
 
             // Clear Description Text
             resultDescription.Text = "";
+
+            // Clear labels on right side
+            creatorInfoLbl.Text = "Creator: ";
+            publishedInfoLbl.Text = "Published: ";
+            topicInfoLbl.Text = "Topic: ";
+
+            // Set image box image back to default
+            resultPreview.Image = SoftwareShelf_Desktop.Properties.Resources.placeholder;
+        }
+
+        private void searchBtn_Click(object sender, EventArgs e)
+        {
+            // Calculate internal type for archive handler
+            string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
+
+            // Clear residual info
+            clearShownItems();
 
             // Perform Search With ArchiveHandler
             List<ArchiveHandler.ArchiveItem> results = ArchiveHandler.Search(searchTxtBox.Text, mediaType, creatorTxt.Text, topicTxt.Text, yearTxt.Text);
@@ -137,7 +144,7 @@ namespace SoftwareShelf_Desktop
             {
                 foreach (ArchiveHandler.ArchiveItem result in results)
                 {
-                    resultsGrid.Rows.Add(result.title, result.avgRating.ToString(), result.size, result.identifier, result.description, result.downloads);
+                    resultsGrid.Rows.Add(result.title, result.avgRating.ToString(), result.size, result.identifier, result.description, result.downloads, result.creator, result.date, result.topic);
                 }
             }
         }
@@ -169,6 +176,15 @@ namespace SoftwareShelf_Desktop
 
                 // Download thumbnail
                 resultPreview.ImageLocation = "http://archive.org/download/" + identifier + "/__ia_thumb.jpg";
+
+                // Set creator label
+                creatorInfoLbl.Text = "Creator: " + resultsGrid.Rows[e.RowIndex].Cells[6].Value.ToString();
+
+                // Set date label
+                publishedInfoLbl.Text = "Published: " + resultsGrid.Rows[e.RowIndex].Cells[7].Value.ToString();
+
+                // Set topic label
+                topicInfoLbl.Text = "Topic: " + resultsGrid.Rows[e.RowIndex].Cells[8].Value.ToString();
 
                 // Enable the download button
                 downloadButton.Enabled = true;
@@ -458,6 +474,52 @@ namespace SoftwareShelf_Desktop
             if (!System.Text.RegularExpressions.Regex.IsMatch(yearTxt.Text, "^[0-9]*$"))
             {
                 yearTxt.Text = "";
+            }
+        }
+
+        private void searchTab_Resize(object sender, EventArgs e)
+        {
+            searchTab.Invalidate();
+        }
+
+        private void downloadTab_Resize(object sender, EventArgs e)
+        {
+            downloadTab.Invalidate();
+        }
+
+        private void latestBtn_Click(object sender, EventArgs e)
+        {
+            // Calculate internal type for archive handler
+            string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
+
+            // Clear residual info
+            clearShownItems();
+
+            // Perform Search With ArchiveHandler
+            List<ArchiveHandler.ArchiveItem> items = ArchiveHandler.GetLatestItems(mediaType);
+
+            // If results is null, break
+            if (items == null)
+            {
+                return;
+            }
+
+            // Add items to resultsGrid if items is not empty
+            if (items.Count > 0)
+            {
+                foreach (ArchiveHandler.ArchiveItem result in items)
+                {
+                    resultsGrid.Rows.Add(result.title, result.avgRating.ToString(), result.size, result.identifier, result.description, result.downloads, result.creator, result.date, result.topic);
+                }
+            }
+        }
+
+        private void resultPreview_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            // Check if there was an error during the image load
+            if (e.Error != null)
+            {
+                resultPreview.Image = SoftwareShelf_Desktop.Properties.Resources.placeholder;
             }
         }
     }

@@ -11,9 +11,17 @@ Release Notes 1.3.1:
 - Fixed bug where aria2 would not enable
 
 Release Notes 1.4.0:
-- Added Rating System
+- Added rating system
 - Prevented restricted access items from showing in search results
 - Reduced ZIP file availability limit to 40GB (Archive.org limitation previously incorrectly implemented)
 - Refactored ArchiveHandler (Optimization)
 - Search UI overhaul
 - ZIP files now download to the downloads folder, no subdirectory.
+
+Release Notes 1.4.5:
+- Added All type option
+- Added button to get latest uploads for selected type
+- Added error handling in the event that Archive.org redirects your download to an HTTPS link
+- Added filter to downloads menu
+- Added info (Creator, Publication Year, Topic) above description
+- Refactored some MainForm code relating to search handling.

@@ -32,22 +32,16 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.searchTxtBox = new System.Windows.Forms.TextBox();
-            this.searchBtn = new System.Windows.Forms.Button();
-            this.controlTabs = new System.Windows.Forms.TabControl();
-            this.searchTab = new System.Windows.Forms.TabPage();
-            this.searchPanel = new System.Windows.Forms.Panel();
-            this.zipBtn = new System.Windows.Forms.Button();
-            this.downloadButton = new System.Windows.Forms.Button();
-            this.resultsGrid = new System.Windows.Forms.DataGridView();
-            this.resultDescription = new System.Windows.Forms.TextBox();
-            this.resultPreview = new System.Windows.Forms.PictureBox();
+            this.progressTimer = new System.Windows.Forms.Timer(this.components);
             this.downloadTab = new System.Windows.Forms.TabPage();
             this.threadsNum = new System.Windows.Forms.NumericUpDown();
             this.threadLbl = new System.Windows.Forms.Label();
             this.boostChk = new System.Windows.Forms.CheckBox();
             this.openDownloadsBtn = new System.Windows.Forms.Button();
             this.cancelDlButton = new System.Windows.Forms.Button();
+            this.dlDirLabel = new System.Windows.Forms.Label();
+            this.dlDirTxtBox = new System.Windows.Forms.TextBox();
+            this.setDirBtn = new System.Windows.Forms.Button();
             this.downloadsDataGridView = new System.Windows.Forms.DataGridView();
             this.DownloadUrl = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Speed = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -58,188 +52,52 @@
             this.DownloadedBytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.downloadTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.multiThreadBytesDownloaded = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dlDirLabel = new System.Windows.Forms.Label();
-            this.dlDirTxtBox = new System.Windows.Forms.TextBox();
-            this.setDirBtn = new System.Windows.Forms.Button();
-            this.progressTimer = new System.Windows.Forms.Timer(this.components);
-            this.queryLbl = new System.Windows.Forms.Label();
-            this.categoryLbl = new System.Windows.Forms.Label();
+            this.searchTab = new System.Windows.Forms.TabPage();
+            this.topicInfoLbl = new System.Windows.Forms.Label();
+            this.publishedInfoLbl = new System.Windows.Forms.Label();
+            this.creatorInfoLbl = new System.Windows.Forms.Label();
+            this.searchPanel = new System.Windows.Forms.Panel();
+            this.latestBtn = new System.Windows.Forms.Button();
+            this.topicTxt = new System.Windows.Forms.TextBox();
             this.typeDropDown = new System.Windows.Forms.ComboBox();
+            this.topicLbl = new System.Windows.Forms.Label();
+            this.categoryLbl = new System.Windows.Forms.Label();
+            this.searchBtn = new System.Windows.Forms.Button();
+            this.creatorTxt = new System.Windows.Forms.TextBox();
+            this.queryLbl = new System.Windows.Forms.Label();
+            this.creatorLbl = new System.Windows.Forms.Label();
+            this.searchTxtBox = new System.Windows.Forms.TextBox();
             this.pubYrLbl = new System.Windows.Forms.Label();
             this.yearTxt = new System.Windows.Forms.TextBox();
-            this.creatorTxt = new System.Windows.Forms.TextBox();
-            this.creatorLbl = new System.Windows.Forms.Label();
-            this.topicTxt = new System.Windows.Forms.TextBox();
-            this.topicLbl = new System.Windows.Forms.Label();
+            this.zipBtn = new System.Windows.Forms.Button();
+            this.downloadButton = new System.Windows.Forms.Button();
+            this.resultDescription = new System.Windows.Forms.TextBox();
+            this.resultPreview = new System.Windows.Forms.PictureBox();
+            this.resultsGrid = new System.Windows.Forms.DataGridView();
+            this.controlTabs = new System.Windows.Forms.TabControl();
             this.resultName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.avgRating = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.resultSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.identifier = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Downloads = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.controlTabs.SuspendLayout();
-            this.searchTab.SuspendLayout();
-            this.searchPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.resultsGrid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).BeginInit();
+            this.creator = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.topic = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.downloadTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.threadsNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.downloadsDataGridView)).BeginInit();
+            this.searchTab.SuspendLayout();
+            this.searchPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.resultsGrid)).BeginInit();
+            this.controlTabs.SuspendLayout();
             this.SuspendLayout();
             // 
-            // searchTxtBox
+            // progressTimer
             // 
-            this.searchTxtBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchTxtBox.Location = new System.Drawing.Point(5, 22);
-            this.searchTxtBox.Name = "searchTxtBox";
-            this.searchTxtBox.Size = new System.Drawing.Size(184, 20);
-            this.searchTxtBox.TabIndex = 1;
-            this.searchTxtBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTxtBox_KeyDown);
-            // 
-            // searchBtn
-            // 
-            this.searchBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.searchBtn.Location = new System.Drawing.Point(5, 353);
-            this.searchBtn.Name = "searchBtn";
-            this.searchBtn.Size = new System.Drawing.Size(184, 22);
-            this.searchBtn.TabIndex = 10;
-            this.searchBtn.Text = "&Search";
-            this.searchBtn.UseVisualStyleBackColor = true;
-            this.searchBtn.Click += new System.EventHandler(this.searchBtn_Click);
-            // 
-            // controlTabs
-            // 
-            this.controlTabs.Controls.Add(this.searchTab);
-            this.controlTabs.Controls.Add(this.downloadTab);
-            this.controlTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.controlTabs.Location = new System.Drawing.Point(0, 0);
-            this.controlTabs.Margin = new System.Windows.Forms.Padding(2);
-            this.controlTabs.Name = "controlTabs";
-            this.controlTabs.SelectedIndex = 0;
-            this.controlTabs.Size = new System.Drawing.Size(934, 421);
-            this.controlTabs.TabIndex = 0;
-            // 
-            // searchTab
-            // 
-            this.searchTab.Controls.Add(this.searchPanel);
-            this.searchTab.Controls.Add(this.zipBtn);
-            this.searchTab.Controls.Add(this.downloadButton);
-            this.searchTab.Controls.Add(this.resultDescription);
-            this.searchTab.Controls.Add(this.resultPreview);
-            this.searchTab.Controls.Add(this.resultsGrid);
-            this.searchTab.Location = new System.Drawing.Point(4, 22);
-            this.searchTab.Name = "searchTab";
-            this.searchTab.Padding = new System.Windows.Forms.Padding(3);
-            this.searchTab.Size = new System.Drawing.Size(926, 395);
-            this.searchTab.TabIndex = 0;
-            this.searchTab.Text = "Search";
-            this.searchTab.UseVisualStyleBackColor = true;
-            this.searchTab.Click += new System.EventHandler(this.searchTab_Click);
-            // 
-            // searchPanel
-            // 
-            this.searchPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.searchPanel.BackColor = System.Drawing.SystemColors.Control;
-            this.searchPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.searchPanel.Controls.Add(this.topicTxt);
-            this.searchPanel.Controls.Add(this.typeDropDown);
-            this.searchPanel.Controls.Add(this.topicLbl);
-            this.searchPanel.Controls.Add(this.categoryLbl);
-            this.searchPanel.Controls.Add(this.searchBtn);
-            this.searchPanel.Controls.Add(this.creatorTxt);
-            this.searchPanel.Controls.Add(this.queryLbl);
-            this.searchPanel.Controls.Add(this.creatorLbl);
-            this.searchPanel.Controls.Add(this.searchTxtBox);
-            this.searchPanel.Controls.Add(this.pubYrLbl);
-            this.searchPanel.Controls.Add(this.yearTxt);
-            this.searchPanel.Location = new System.Drawing.Point(6, 6);
-            this.searchPanel.Name = "searchPanel";
-            this.searchPanel.Size = new System.Drawing.Size(196, 381);
-            this.searchPanel.TabIndex = 0;
-            // 
-            // zipBtn
-            // 
-            this.zipBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.zipBtn.Enabled = false;
-            this.zipBtn.Location = new System.Drawing.Point(869, 360);
-            this.zipBtn.Name = "zipBtn";
-            this.zipBtn.Size = new System.Drawing.Size(51, 27);
-            this.zipBtn.TabIndex = 4;
-            this.zipBtn.Text = "&ZIP";
-            this.zipBtn.UseVisualStyleBackColor = true;
-            this.zipBtn.Click += new System.EventHandler(this.zipBtn_Click);
-            // 
-            // downloadButton
-            // 
-            this.downloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.downloadButton.Enabled = false;
-            this.downloadButton.Location = new System.Drawing.Point(724, 360);
-            this.downloadButton.Name = "downloadButton";
-            this.downloadButton.Size = new System.Drawing.Size(139, 27);
-            this.downloadButton.TabIndex = 3;
-            this.downloadButton.Text = "&Download";
-            this.downloadButton.UseVisualStyleBackColor = true;
-            this.downloadButton.Click += new System.EventHandler(this.downloadButton_Click);
-            // 
-            // resultsGrid
-            // 
-            this.resultsGrid.AllowUserToAddRows = false;
-            this.resultsGrid.AllowUserToDeleteRows = false;
-            this.resultsGrid.AllowUserToOrderColumns = true;
-            this.resultsGrid.AllowUserToResizeColumns = false;
-            this.resultsGrid.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.resultsGrid.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.resultsGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.resultsGrid.BackgroundColor = System.Drawing.SystemColors.Control;
-            this.resultsGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.resultsGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.resultName,
-            this.avgRating,
-            this.resultSize,
-            this.identifier,
-            this.description,
-            this.Downloads});
-            this.resultsGrid.Location = new System.Drawing.Point(208, 6);
-            this.resultsGrid.MultiSelect = false;
-            this.resultsGrid.Name = "resultsGrid";
-            this.resultsGrid.ReadOnly = true;
-            this.resultsGrid.RowHeadersVisible = false;
-            this.resultsGrid.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.resultsGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.resultsGrid.Size = new System.Drawing.Size(510, 381);
-            this.resultsGrid.TabIndex = 1;
-            this.resultsGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellContentClick);
-            this.resultsGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellDoubleClick);
-            this.resultsGrid.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_RowEnter);
-            this.resultsGrid.SelectionChanged += new System.EventHandler(this.resultsGrid_SelectionChanged);
-            this.resultsGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.resultsGrid_KeyDown);
-            // 
-            // resultDescription
-            // 
-            this.resultDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.resultDescription.Location = new System.Drawing.Point(724, 208);
-            this.resultDescription.Multiline = true;
-            this.resultDescription.Name = "resultDescription";
-            this.resultDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.resultDescription.Size = new System.Drawing.Size(196, 146);
-            this.resultDescription.TabIndex = 2;
-            // 
-            // resultPreview
-            // 
-            this.resultPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.resultPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.resultPreview.Location = new System.Drawing.Point(724, 6);
-            this.resultPreview.Name = "resultPreview";
-            this.resultPreview.Size = new System.Drawing.Size(196, 196);
-            this.resultPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.resultPreview.TabIndex = 1;
-            this.resultPreview.TabStop = false;
+            this.progressTimer.Interval = 500;
+            this.progressTimer.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // downloadTab
             // 
@@ -255,15 +113,16 @@
             this.downloadTab.Location = new System.Drawing.Point(4, 22);
             this.downloadTab.Name = "downloadTab";
             this.downloadTab.Padding = new System.Windows.Forms.Padding(3);
-            this.downloadTab.Size = new System.Drawing.Size(926, 395);
+            this.downloadTab.Size = new System.Drawing.Size(906, 425);
             this.downloadTab.TabIndex = 1;
             this.downloadTab.Text = "Downloads";
             this.downloadTab.UseVisualStyleBackColor = true;
+            this.downloadTab.Resize += new System.EventHandler(this.downloadTab_Resize);
             // 
             // threadsNum
             // 
             this.threadsNum.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.threadsNum.Location = new System.Drawing.Point(610, 366);
+            this.threadsNum.Location = new System.Drawing.Point(590, 396);
             this.threadsNum.Maximum = new decimal(new int[] {
             8,
             0,
@@ -288,7 +147,7 @@
             // 
             this.threadLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.threadLbl.AutoSize = true;
-            this.threadLbl.Location = new System.Drawing.Point(610, 350);
+            this.threadLbl.Location = new System.Drawing.Point(590, 380);
             this.threadLbl.Name = "threadLbl";
             this.threadLbl.Size = new System.Drawing.Size(49, 13);
             this.threadLbl.TabIndex = 4;
@@ -298,7 +157,7 @@
             // 
             this.boostChk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.boostChk.AutoSize = true;
-            this.boostChk.Location = new System.Drawing.Point(555, 367);
+            this.boostChk.Location = new System.Drawing.Point(535, 397);
             this.boostChk.Margin = new System.Windows.Forms.Padding(0);
             this.boostChk.Name = "boostChk";
             this.boostChk.Size = new System.Drawing.Size(50, 17);
@@ -311,7 +170,7 @@
             // openDownloadsBtn
             // 
             this.openDownloadsBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.openDownloadsBtn.Location = new System.Drawing.Point(660, 364);
+            this.openDownloadsBtn.Location = new System.Drawing.Point(640, 394);
             this.openDownloadsBtn.Name = "openDownloadsBtn";
             this.openDownloadsBtn.Size = new System.Drawing.Size(98, 23);
             this.openDownloadsBtn.TabIndex = 6;
@@ -323,7 +182,7 @@
             // 
             this.cancelDlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelDlButton.Enabled = false;
-            this.cancelDlButton.Location = new System.Drawing.Point(844, 364);
+            this.cancelDlButton.Location = new System.Drawing.Point(824, 394);
             this.cancelDlButton.Name = "cancelDlButton";
             this.cancelDlButton.Size = new System.Drawing.Size(76, 23);
             this.cancelDlButton.TabIndex = 8;
@@ -331,14 +190,47 @@
             this.cancelDlButton.UseVisualStyleBackColor = true;
             this.cancelDlButton.Click += new System.EventHandler(this.cancelDlButton_Click);
             // 
+            // dlDirLabel
+            // 
+            this.dlDirLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.dlDirLabel.AutoSize = true;
+            this.dlDirLabel.Location = new System.Drawing.Point(7, 380);
+            this.dlDirLabel.Name = "dlDirLabel";
+            this.dlDirLabel.Size = new System.Drawing.Size(108, 13);
+            this.dlDirLabel.TabIndex = 1;
+            this.dlDirLabel.Text = "&Downloads Directory:";
+            // 
+            // dlDirTxtBox
+            // 
+            this.dlDirTxtBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dlDirTxtBox.BackColor = System.Drawing.SystemColors.Window;
+            this.dlDirTxtBox.Location = new System.Drawing.Point(7, 396);
+            this.dlDirTxtBox.Name = "dlDirTxtBox";
+            this.dlDirTxtBox.ReadOnly = true;
+            this.dlDirTxtBox.Size = new System.Drawing.Size(523, 20);
+            this.dlDirTxtBox.TabIndex = 2;
+            this.dlDirTxtBox.TextChanged += new System.EventHandler(this.dlDirTxtBox_TextChanged);
+            // 
+            // setDirBtn
+            // 
+            this.setDirBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.setDirBtn.Location = new System.Drawing.Point(743, 394);
+            this.setDirBtn.Name = "setDirBtn";
+            this.setDirBtn.Size = new System.Drawing.Size(76, 23);
+            this.setDirBtn.TabIndex = 7;
+            this.setDirBtn.Text = "&Browse...";
+            this.setDirBtn.UseVisualStyleBackColor = true;
+            this.setDirBtn.Click += new System.EventHandler(this.setDirBtn_Click);
+            // 
             // downloadsDataGridView
             // 
             this.downloadsDataGridView.AllowUserToAddRows = false;
             this.downloadsDataGridView.AllowUserToDeleteRows = false;
             this.downloadsDataGridView.AllowUserToOrderColumns = true;
             this.downloadsDataGridView.AllowUserToResizeRows = false;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.downloadsDataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.downloadsDataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.downloadsDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -354,13 +246,13 @@
             this.DownloadedBytes,
             this.downloadTime,
             this.multiThreadBytesDownloaded});
-            this.downloadsDataGridView.Location = new System.Drawing.Point(6, 6);
+            this.downloadsDataGridView.Location = new System.Drawing.Point(6, 7);
             this.downloadsDataGridView.MultiSelect = false;
             this.downloadsDataGridView.Name = "downloadsDataGridView";
             this.downloadsDataGridView.ReadOnly = true;
             this.downloadsDataGridView.RowHeadersVisible = false;
             this.downloadsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.downloadsDataGridView.Size = new System.Drawing.Size(914, 341);
+            this.downloadsDataGridView.Size = new System.Drawing.Size(894, 370);
             this.downloadsDataGridView.TabIndex = 0;
             this.downloadsDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.downloadsDataGridView_CellContentClick);
             this.downloadsDataGridView.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.downloadsDataGridView_RowEnter);
@@ -437,43 +329,158 @@
             this.multiThreadBytesDownloaded.ReadOnly = true;
             this.multiThreadBytesDownloaded.Visible = false;
             // 
-            // dlDirLabel
+            // searchTab
             // 
-            this.dlDirLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.dlDirLabel.AutoSize = true;
-            this.dlDirLabel.Location = new System.Drawing.Point(6, 350);
-            this.dlDirLabel.Name = "dlDirLabel";
-            this.dlDirLabel.Size = new System.Drawing.Size(108, 13);
-            this.dlDirLabel.TabIndex = 1;
-            this.dlDirLabel.Text = "&Downloads Directory:";
+            this.searchTab.Controls.Add(this.topicInfoLbl);
+            this.searchTab.Controls.Add(this.publishedInfoLbl);
+            this.searchTab.Controls.Add(this.creatorInfoLbl);
+            this.searchTab.Controls.Add(this.searchPanel);
+            this.searchTab.Controls.Add(this.zipBtn);
+            this.searchTab.Controls.Add(this.downloadButton);
+            this.searchTab.Controls.Add(this.resultDescription);
+            this.searchTab.Controls.Add(this.resultPreview);
+            this.searchTab.Controls.Add(this.resultsGrid);
+            this.searchTab.Location = new System.Drawing.Point(4, 22);
+            this.searchTab.Name = "searchTab";
+            this.searchTab.Padding = new System.Windows.Forms.Padding(3);
+            this.searchTab.Size = new System.Drawing.Size(906, 425);
+            this.searchTab.TabIndex = 0;
+            this.searchTab.Text = "Search";
+            this.searchTab.UseVisualStyleBackColor = true;
+            this.searchTab.Click += new System.EventHandler(this.searchTab_Click);
+            this.searchTab.Resize += new System.EventHandler(this.searchTab_Resize);
             // 
-            // dlDirTxtBox
+            // topicInfoLbl
             // 
-            this.dlDirTxtBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dlDirTxtBox.BackColor = System.Drawing.SystemColors.Window;
-            this.dlDirTxtBox.Location = new System.Drawing.Point(6, 366);
-            this.dlDirTxtBox.Name = "dlDirTxtBox";
-            this.dlDirTxtBox.ReadOnly = true;
-            this.dlDirTxtBox.Size = new System.Drawing.Size(544, 20);
-            this.dlDirTxtBox.TabIndex = 2;
-            this.dlDirTxtBox.TextChanged += new System.EventHandler(this.dlDirTxtBox_TextChanged);
+            this.topicInfoLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.topicInfoLbl.AutoSize = true;
+            this.topicInfoLbl.Location = new System.Drawing.Point(704, 241);
+            this.topicInfoLbl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.topicInfoLbl.Name = "topicInfoLbl";
+            this.topicInfoLbl.Size = new System.Drawing.Size(37, 13);
+            this.topicInfoLbl.TabIndex = 4;
+            this.topicInfoLbl.Text = "Topic:";
             // 
-            // setDirBtn
+            // publishedInfoLbl
             // 
-            this.setDirBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.setDirBtn.Location = new System.Drawing.Point(763, 364);
-            this.setDirBtn.Name = "setDirBtn";
-            this.setDirBtn.Size = new System.Drawing.Size(76, 23);
-            this.setDirBtn.TabIndex = 7;
-            this.setDirBtn.Text = "&Browse...";
-            this.setDirBtn.UseVisualStyleBackColor = true;
-            this.setDirBtn.Click += new System.EventHandler(this.setDirBtn_Click);
+            this.publishedInfoLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.publishedInfoLbl.AutoSize = true;
+            this.publishedInfoLbl.Location = new System.Drawing.Point(704, 224);
+            this.publishedInfoLbl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.publishedInfoLbl.Name = "publishedInfoLbl";
+            this.publishedInfoLbl.Size = new System.Drawing.Size(56, 13);
+            this.publishedInfoLbl.TabIndex = 3;
+            this.publishedInfoLbl.Text = "Published:";
             // 
-            // progressTimer
+            // creatorInfoLbl
             // 
-            this.progressTimer.Interval = 500;
-            this.progressTimer.Tick += new System.EventHandler(this.timer1_Tick);
+            this.creatorInfoLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.creatorInfoLbl.AutoSize = true;
+            this.creatorInfoLbl.Location = new System.Drawing.Point(704, 207);
+            this.creatorInfoLbl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.creatorInfoLbl.Name = "creatorInfoLbl";
+            this.creatorInfoLbl.Size = new System.Drawing.Size(47, 13);
+            this.creatorInfoLbl.TabIndex = 2;
+            this.creatorInfoLbl.Text = "Creator: ";
+            // 
+            // searchPanel
+            // 
+            this.searchPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.searchPanel.BackColor = System.Drawing.SystemColors.Control;
+            this.searchPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchPanel.Controls.Add(this.latestBtn);
+            this.searchPanel.Controls.Add(this.topicTxt);
+            this.searchPanel.Controls.Add(this.typeDropDown);
+            this.searchPanel.Controls.Add(this.topicLbl);
+            this.searchPanel.Controls.Add(this.categoryLbl);
+            this.searchPanel.Controls.Add(this.searchBtn);
+            this.searchPanel.Controls.Add(this.creatorTxt);
+            this.searchPanel.Controls.Add(this.queryLbl);
+            this.searchPanel.Controls.Add(this.creatorLbl);
+            this.searchPanel.Controls.Add(this.searchTxtBox);
+            this.searchPanel.Controls.Add(this.pubYrLbl);
+            this.searchPanel.Controls.Add(this.yearTxt);
+            this.searchPanel.Location = new System.Drawing.Point(6, 7);
+            this.searchPanel.Name = "searchPanel";
+            this.searchPanel.Size = new System.Drawing.Size(196, 411);
+            this.searchPanel.TabIndex = 0;
+            // 
+            // latestBtn
+            // 
+            this.latestBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.latestBtn.Location = new System.Drawing.Point(5, 355);
+            this.latestBtn.Name = "latestBtn";
+            this.latestBtn.Size = new System.Drawing.Size(184, 22);
+            this.latestBtn.TabIndex = 10;
+            this.latestBtn.Text = "&Latest Items for Type";
+            this.latestBtn.UseVisualStyleBackColor = true;
+            this.latestBtn.Click += new System.EventHandler(this.latestBtn_Click);
+            // 
+            // topicTxt
+            // 
+            this.topicTxt.Location = new System.Drawing.Point(5, 112);
+            this.topicTxt.Name = "topicTxt";
+            this.topicTxt.Size = new System.Drawing.Size(184, 20);
+            this.topicTxt.TabIndex = 5;
+            this.topicTxt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTxtBox_KeyDown);
+            // 
+            // typeDropDown
+            // 
+            this.typeDropDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.typeDropDown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.typeDropDown.FormattingEnabled = true;
+            this.typeDropDown.Items.AddRange(new object[] {
+            "All",
+            "Audio",
+            "Books",
+            "Images",
+            "Movies",
+            "Software"});
+            this.typeDropDown.Location = new System.Drawing.Point(5, 328);
+            this.typeDropDown.Name = "typeDropDown";
+            this.typeDropDown.Size = new System.Drawing.Size(184, 21);
+            this.typeDropDown.TabIndex = 9;
+            // 
+            // topicLbl
+            // 
+            this.topicLbl.AutoSize = true;
+            this.topicLbl.Location = new System.Drawing.Point(5, 93);
+            this.topicLbl.Margin = new System.Windows.Forms.Padding(3);
+            this.topicLbl.Name = "topicLbl";
+            this.topicLbl.Size = new System.Drawing.Size(37, 13);
+            this.topicLbl.TabIndex = 4;
+            this.topicLbl.Text = "T&opic:";
+            // 
+            // categoryLbl
+            // 
+            this.categoryLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.categoryLbl.AutoSize = true;
+            this.categoryLbl.Location = new System.Drawing.Point(5, 309);
+            this.categoryLbl.Margin = new System.Windows.Forms.Padding(3);
+            this.categoryLbl.Name = "categoryLbl";
+            this.categoryLbl.Size = new System.Drawing.Size(34, 13);
+            this.categoryLbl.TabIndex = 8;
+            this.categoryLbl.Text = "&Type:";
+            // 
+            // searchBtn
+            // 
+            this.searchBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.searchBtn.Location = new System.Drawing.Point(5, 383);
+            this.searchBtn.Name = "searchBtn";
+            this.searchBtn.Size = new System.Drawing.Size(184, 22);
+            this.searchBtn.TabIndex = 11;
+            this.searchBtn.Text = "&Search";
+            this.searchBtn.UseVisualStyleBackColor = true;
+            this.searchBtn.Click += new System.EventHandler(this.searchBtn_Click);
+            // 
+            // creatorTxt
+            // 
+            this.creatorTxt.Location = new System.Drawing.Point(5, 67);
+            this.creatorTxt.Name = "creatorTxt";
+            this.creatorTxt.Size = new System.Drawing.Size(184, 20);
+            this.creatorTxt.TabIndex = 3;
+            this.creatorTxt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTxtBox_KeyDown);
             // 
             // queryLbl
             // 
@@ -485,32 +492,25 @@
             this.queryLbl.TabIndex = 0;
             this.queryLbl.Text = "&Keyword:";
             // 
-            // categoryLbl
+            // creatorLbl
             // 
-            this.categoryLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.categoryLbl.AutoSize = true;
-            this.categoryLbl.Location = new System.Drawing.Point(5, 307);
-            this.categoryLbl.Margin = new System.Windows.Forms.Padding(3);
-            this.categoryLbl.Name = "categoryLbl";
-            this.categoryLbl.Size = new System.Drawing.Size(34, 13);
-            this.categoryLbl.TabIndex = 8;
-            this.categoryLbl.Text = "&Type:";
+            this.creatorLbl.AutoSize = true;
+            this.creatorLbl.Location = new System.Drawing.Point(5, 48);
+            this.creatorLbl.Margin = new System.Windows.Forms.Padding(3);
+            this.creatorLbl.Name = "creatorLbl";
+            this.creatorLbl.Size = new System.Drawing.Size(44, 13);
+            this.creatorLbl.TabIndex = 2;
+            this.creatorLbl.Text = "&Creator:";
             // 
-            // typeDropDown
+            // searchTxtBox
             // 
-            this.typeDropDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.typeDropDown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.typeDropDown.FormattingEnabled = true;
-            this.typeDropDown.Items.AddRange(new object[] {
-            "Audio",
-            "Books",
-            "Images",
-            "Movies",
-            "Software"});
-            this.typeDropDown.Location = new System.Drawing.Point(5, 326);
-            this.typeDropDown.Name = "typeDropDown";
-            this.typeDropDown.Size = new System.Drawing.Size(184, 21);
-            this.typeDropDown.TabIndex = 9;
+            this.searchTxtBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.searchTxtBox.Location = new System.Drawing.Point(5, 22);
+            this.searchTxtBox.Name = "searchTxtBox";
+            this.searchTxtBox.Size = new System.Drawing.Size(184, 20);
+            this.searchTxtBox.TabIndex = 1;
+            this.searchTxtBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTxtBox_KeyDown);
             // 
             // pubYrLbl
             // 
@@ -532,41 +532,106 @@
             this.yearTxt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTxtBox_KeyDown);
             this.yearTxt.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.yearTxt_KeyPress);
             // 
-            // creatorTxt
+            // zipBtn
             // 
-            this.creatorTxt.Location = new System.Drawing.Point(5, 67);
-            this.creatorTxt.Name = "creatorTxt";
-            this.creatorTxt.Size = new System.Drawing.Size(184, 20);
-            this.creatorTxt.TabIndex = 3;
-            this.creatorTxt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTxtBox_KeyDown);
+            this.zipBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.zipBtn.Enabled = false;
+            this.zipBtn.Location = new System.Drawing.Point(849, 391);
+            this.zipBtn.Name = "zipBtn";
+            this.zipBtn.Size = new System.Drawing.Size(51, 27);
+            this.zipBtn.TabIndex = 7;
+            this.zipBtn.Text = "&ZIP";
+            this.zipBtn.UseVisualStyleBackColor = true;
+            this.zipBtn.Click += new System.EventHandler(this.zipBtn_Click);
             // 
-            // creatorLbl
+            // downloadButton
             // 
-            this.creatorLbl.AutoSize = true;
-            this.creatorLbl.Location = new System.Drawing.Point(5, 48);
-            this.creatorLbl.Margin = new System.Windows.Forms.Padding(3);
-            this.creatorLbl.Name = "creatorLbl";
-            this.creatorLbl.Size = new System.Drawing.Size(44, 13);
-            this.creatorLbl.TabIndex = 2;
-            this.creatorLbl.Text = "&Creator:";
+            this.downloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.downloadButton.Enabled = false;
+            this.downloadButton.Location = new System.Drawing.Point(704, 391);
+            this.downloadButton.Name = "downloadButton";
+            this.downloadButton.Size = new System.Drawing.Size(139, 27);
+            this.downloadButton.TabIndex = 6;
+            this.downloadButton.Text = "&Download";
+            this.downloadButton.UseVisualStyleBackColor = true;
+            this.downloadButton.Click += new System.EventHandler(this.downloadButton_Click);
             // 
-            // topicTxt
+            // resultDescription
             // 
-            this.topicTxt.Location = new System.Drawing.Point(5, 112);
-            this.topicTxt.Name = "topicTxt";
-            this.topicTxt.Size = new System.Drawing.Size(184, 20);
-            this.topicTxt.TabIndex = 5;
-            this.topicTxt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTxtBox_KeyDown);
+            this.resultDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.resultDescription.Location = new System.Drawing.Point(704, 259);
+            this.resultDescription.Multiline = true;
+            this.resultDescription.Name = "resultDescription";
+            this.resultDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.resultDescription.Size = new System.Drawing.Size(196, 126);
+            this.resultDescription.TabIndex = 5;
             // 
-            // topicLbl
+            // resultPreview
             // 
-            this.topicLbl.AutoSize = true;
-            this.topicLbl.Location = new System.Drawing.Point(5, 93);
-            this.topicLbl.Margin = new System.Windows.Forms.Padding(3);
-            this.topicLbl.Name = "topicLbl";
-            this.topicLbl.Size = new System.Drawing.Size(37, 13);
-            this.topicLbl.TabIndex = 4;
-            this.topicLbl.Text = "T&opic:";
+            this.resultPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.resultPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.resultPreview.Image = global::SoftwareShelf_Desktop.Properties.Resources.placeholder;
+            this.resultPreview.Location = new System.Drawing.Point(704, 7);
+            this.resultPreview.Name = "resultPreview";
+            this.resultPreview.Size = new System.Drawing.Size(196, 196);
+            this.resultPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.resultPreview.TabIndex = 1;
+            this.resultPreview.TabStop = false;
+            this.resultPreview.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(this.resultPreview_LoadCompleted);
+            // 
+            // resultsGrid
+            // 
+            this.resultsGrid.AllowUserToAddRows = false;
+            this.resultsGrid.AllowUserToDeleteRows = false;
+            this.resultsGrid.AllowUserToOrderColumns = true;
+            this.resultsGrid.AllowUserToResizeColumns = false;
+            this.resultsGrid.AllowUserToResizeRows = false;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.resultsGrid.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
+            this.resultsGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.resultsGrid.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.resultsGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.resultsGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.resultName,
+            this.avgRating,
+            this.resultSize,
+            this.identifier,
+            this.description,
+            this.Downloads,
+            this.creator,
+            this.date,
+            this.topic});
+            this.resultsGrid.Location = new System.Drawing.Point(208, 7);
+            this.resultsGrid.MultiSelect = false;
+            this.resultsGrid.Name = "resultsGrid";
+            this.resultsGrid.ReadOnly = true;
+            this.resultsGrid.RowHeadersVisible = false;
+            this.resultsGrid.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.resultsGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.resultsGrid.Size = new System.Drawing.Size(490, 411);
+            this.resultsGrid.TabIndex = 1;
+            this.resultsGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellContentClick);
+            this.resultsGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellDoubleClick);
+            this.resultsGrid.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_RowEnter);
+            this.resultsGrid.SelectionChanged += new System.EventHandler(this.resultsGrid_SelectionChanged);
+            this.resultsGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.resultsGrid_KeyDown);
+            // 
+            // controlTabs
+            // 
+            this.controlTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.controlTabs.Controls.Add(this.searchTab);
+            this.controlTabs.Controls.Add(this.downloadTab);
+            this.controlTabs.Location = new System.Drawing.Point(10, 10);
+            this.controlTabs.Margin = new System.Windows.Forms.Padding(1);
+            this.controlTabs.Name = "controlTabs";
+            this.controlTabs.SelectedIndex = 0;
+            this.controlTabs.Size = new System.Drawing.Size(914, 451);
+            this.controlTabs.TabIndex = 0;
             // 
             // resultName
             // 
@@ -613,52 +678,66 @@
             this.Downloads.Name = "Downloads";
             this.Downloads.ReadOnly = true;
             // 
+            // creator
+            // 
+            this.creator.HeaderText = "Creator";
+            this.creator.Name = "creator";
+            this.creator.ReadOnly = true;
+            this.creator.Visible = false;
+            // 
+            // date
+            // 
+            this.date.HeaderText = "Date";
+            this.date.Name = "date";
+            this.date.ReadOnly = true;
+            this.date.Visible = false;
+            // 
+            // topic
+            // 
+            this.topic.HeaderText = "Topic";
+            this.topic.Name = "topic";
+            this.topic.ReadOnly = true;
+            this.topic.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(934, 421);
+            this.ClientSize = new System.Drawing.Size(934, 471);
             this.Controls.Add(this.controlTabs);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(563, 378);
+            this.MinimumSize = new System.Drawing.Size(563, 400);
             this.Name = "MainForm";
-            this.Text = "SoftwareShelf Desktop 1.4";
+            this.Text = "SoftwareShelf Desktop 1.4.5";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.controlTabs.ResumeLayout(false);
-            this.searchTab.ResumeLayout(false);
-            this.searchTab.PerformLayout();
-            this.searchPanel.ResumeLayout(false);
-            this.searchPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.resultsGrid)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).EndInit();
             this.downloadTab.ResumeLayout(false);
             this.downloadTab.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.threadsNum)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.downloadsDataGridView)).EndInit();
+            this.searchTab.ResumeLayout(false);
+            this.searchTab.PerformLayout();
+            this.searchPanel.ResumeLayout(false);
+            this.searchPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.resultsGrid)).EndInit();
+            this.controlTabs.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.TextBox searchTxtBox;
-        private System.Windows.Forms.Button searchBtn;
-        private System.Windows.Forms.TabControl controlTabs;
-        private System.Windows.Forms.TabPage searchTab;
+        public System.Windows.Forms.Timer progressTimer;
         private System.Windows.Forms.TabPage downloadTab;
-        private System.Windows.Forms.TextBox resultDescription;
-        private System.Windows.Forms.PictureBox resultPreview;
-        private System.Windows.Forms.DataGridView resultsGrid;
-        private System.Windows.Forms.Button downloadButton;
-        private System.Windows.Forms.Button setDirBtn;
+        private System.Windows.Forms.NumericUpDown threadsNum;
+        private System.Windows.Forms.Label threadLbl;
+        public System.Windows.Forms.CheckBox boostChk;
+        private System.Windows.Forms.Button openDownloadsBtn;
+        private System.Windows.Forms.Button cancelDlButton;
         private System.Windows.Forms.Label dlDirLabel;
         private System.Windows.Forms.TextBox dlDirTxtBox;
+        private System.Windows.Forms.Button setDirBtn;
         private System.Windows.Forms.DataGridView downloadsDataGridView;
-        public System.Windows.Forms.Timer progressTimer;
-        private System.Windows.Forms.Button cancelDlButton;
-        private System.Windows.Forms.Button openDownloadsBtn;
-        public System.Windows.Forms.CheckBox boostChk;
         private System.Windows.Forms.DataGridViewTextBoxColumn DownloadUrl;
         private System.Windows.Forms.DataGridViewTextBoxColumn Speed;
         private System.Windows.Forms.DataGridViewTextBoxColumn downloadIdentifier;
@@ -668,25 +747,38 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn DownloadedBytes;
         private System.Windows.Forms.DataGridViewTextBoxColumn downloadTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn multiThreadBytesDownloaded;
-        private System.Windows.Forms.Button zipBtn;
-        private System.Windows.Forms.NumericUpDown threadsNum;
-        private System.Windows.Forms.Label threadLbl;
+        private System.Windows.Forms.TabPage searchTab;
         private System.Windows.Forms.Panel searchPanel;
-        private System.Windows.Forms.Label queryLbl;
-        private System.Windows.Forms.Label pubYrLbl;
-        private System.Windows.Forms.ComboBox typeDropDown;
-        private System.Windows.Forms.Label categoryLbl;
-        private System.Windows.Forms.TextBox yearTxt;
-        private System.Windows.Forms.TextBox creatorTxt;
-        private System.Windows.Forms.Label creatorLbl;
         private System.Windows.Forms.TextBox topicTxt;
+        private System.Windows.Forms.ComboBox typeDropDown;
         private System.Windows.Forms.Label topicLbl;
+        private System.Windows.Forms.Label categoryLbl;
+        private System.Windows.Forms.Button searchBtn;
+        private System.Windows.Forms.TextBox creatorTxt;
+        private System.Windows.Forms.Label queryLbl;
+        private System.Windows.Forms.Label creatorLbl;
+        private System.Windows.Forms.TextBox searchTxtBox;
+        private System.Windows.Forms.Label pubYrLbl;
+        private System.Windows.Forms.TextBox yearTxt;
+        private System.Windows.Forms.Button zipBtn;
+        private System.Windows.Forms.Button downloadButton;
+        private System.Windows.Forms.TextBox resultDescription;
+        private System.Windows.Forms.PictureBox resultPreview;
+        private System.Windows.Forms.DataGridView resultsGrid;
+        private System.Windows.Forms.TabControl controlTabs;
+        private System.Windows.Forms.Label creatorInfoLbl;
+        private System.Windows.Forms.Label topicInfoLbl;
+        private System.Windows.Forms.Label publishedInfoLbl;
+        private System.Windows.Forms.Button latestBtn;
         private System.Windows.Forms.DataGridViewTextBoxColumn resultName;
         private System.Windows.Forms.DataGridViewTextBoxColumn avgRating;
         private System.Windows.Forms.DataGridViewTextBoxColumn resultSize;
         private System.Windows.Forms.DataGridViewTextBoxColumn identifier;
         private System.Windows.Forms.DataGridViewTextBoxColumn description;
         private System.Windows.Forms.DataGridViewTextBoxColumn Downloads;
+        private System.Windows.Forms.DataGridViewTextBoxColumn creator;
+        private System.Windows.Forms.DataGridViewTextBoxColumn date;
+        private System.Windows.Forms.DataGridViewTextBoxColumn topic;
     }
 }
 

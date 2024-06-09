@@ -33,6 +33,8 @@
             this.downloadSelectedBtn = new System.Windows.Forms.Button();
             this.filesListBox = new System.Windows.Forms.CheckedListBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.filterTxt = new System.Windows.Forms.TextBox();
+            this.filterLbl = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -67,7 +69,7 @@
             this.downloadSelectedBtn.Location = new System.Drawing.Point(12, 222);
             this.downloadSelectedBtn.Name = "downloadSelectedBtn";
             this.downloadSelectedBtn.Size = new System.Drawing.Size(310, 23);
-            this.downloadSelectedBtn.TabIndex = 2;
+            this.downloadSelectedBtn.TabIndex = 4;
             this.downloadSelectedBtn.Text = "&Download Selected";
             this.downloadSelectedBtn.UseVisualStyleBackColor = true;
             this.downloadSelectedBtn.Click += new System.EventHandler(this.downloadSelectedBtn_Click);
@@ -80,11 +82,11 @@
             this.filesListBox.CheckOnClick = true;
             this.filesListBox.FormattingEnabled = true;
             this.filesListBox.IntegralHeight = false;
-            this.filesListBox.Location = new System.Drawing.Point(12, 12);
+            this.filesListBox.Location = new System.Drawing.Point(12, 42);
             this.filesListBox.Name = "filesListBox";
             this.filesListBox.ScrollAlwaysVisible = true;
-            this.filesListBox.Size = new System.Drawing.Size(310, 181);
-            this.filesListBox.TabIndex = 3;
+            this.filesListBox.Size = new System.Drawing.Size(310, 151);
+            this.filesListBox.TabIndex = 2;
             // 
             // tableLayoutPanel1
             // 
@@ -102,13 +104,34 @@
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(310, 23);
-            this.tableLayoutPanel1.TabIndex = 4;
+            this.tableLayoutPanel1.TabIndex = 3;
+            // 
+            // filterTxt
+            // 
+            this.filterTxt.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.filterTxt.Location = new System.Drawing.Point(47, 12);
+            this.filterTxt.Name = "filterTxt";
+            this.filterTxt.Size = new System.Drawing.Size(275, 20);
+            this.filterTxt.TabIndex = 1;
+            this.filterTxt.TextChanged += new System.EventHandler(this.filterTxt_TextChanged);
+            // 
+            // filterLbl
+            // 
+            this.filterLbl.AutoSize = true;
+            this.filterLbl.Location = new System.Drawing.Point(9, 15);
+            this.filterLbl.Name = "filterLbl";
+            this.filterLbl.Size = new System.Drawing.Size(32, 13);
+            this.filterLbl.TabIndex = 0;
+            this.filterLbl.Text = "&Filter:";
             // 
             // DownloadForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(334, 253);
+            this.Controls.Add(this.filterLbl);
+            this.Controls.Add(this.filterTxt);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.filesListBox);
             this.Controls.Add(this.downloadSelectedBtn);
@@ -122,6 +145,7 @@
             this.Load += new System.EventHandler(this.DownloadForm_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -132,5 +156,7 @@
         private System.Windows.Forms.Button downloadSelectedBtn;
         private System.Windows.Forms.CheckedListBox filesListBox;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TextBox filterTxt;
+        private System.Windows.Forms.Label filterLbl;
     }
 }

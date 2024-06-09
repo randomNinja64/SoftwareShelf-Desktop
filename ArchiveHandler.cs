@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Management;
+using System.Globalization;
 using System.Net;
 using System.Windows.Forms;
 
@@ -14,15 +13,18 @@ namespace SoftwareShelf_Desktop
         public struct ArchiveItem
         {
             public string title;
+            public string creator;
             public string description;
             public string identifier;
+            public string date;
+            public string topic;
             public double avgRating;
             public Int64 downloads;
             public Int64 size;
         }
 
         // Function to perform searches on Archive.org
-        public static List<ArchiveItem> Search(string query, string mediaType = "data", string creatorName = "", string topicName = "", string yearText = "")
+        public static List<ArchiveItem> Search(string query, string mediaType = "", string creatorName = "", string topicName = "", string yearText = "")
         {
             //If query is blank, error out
             if (query == "" && creatorName == "" && topicName == "" && yearText == "")
@@ -31,20 +33,53 @@ namespace SoftwareShelf_Desktop
                 return null;
             }
 
-            // Create a list of ArchiveItems
-            List<ArchiveItem> results = new List<ArchiveItem>();
-
             // Build the Query
             query = GetQuery(query, creatorName, topicName, yearText);
             string additionalQuery = BuildAdditionalQuery(creatorName, topicName, yearText);
 
+            // Check if mediaType is not empty or blank
+            if (!string.IsNullOrEmpty(mediaType))
+            {
+                // Set MediaType
+                mediaType = "AND+mediatype:(" + mediaType + ")";
+            }
+
             // Base URL for API
-            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+AND+mediatype:(" + mediaType + ")" + additionalQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&sort[]=&sort[]=&sort[]=&rows=100&output=json";
+            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+" + mediaType + additionalQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&sort[]=&sort[]=&sort[]=&rows=100&output=json";
 
             //MessageBox.Show(search_url);
             Console.WriteLine("[Info] Searching:" + search_url);
 
             string results_json = GetJsonResponse(search_url);
+
+            if (string.IsNullOrEmpty(results_json))
+            {
+                MessageBox.Show("Error 01: Error retrieving results. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            return ParseSearchResults(results_json);
+        }
+
+        public static List<ArchiveItem> GetLatestItems (string mediaType = "")
+        {
+            // Logging
+            Console.WriteLine("[Info] Grabbing latest items for selected type.");
+
+            // Check if mediaType is not empty or blank
+            if (!string.IsNullOrEmpty(mediaType))
+            {
+                // Set MediaType
+                mediaType = "AND+mediatype:(" + mediaType + ")";
+            }
+
+            // Query URL for latest items
+            string latest_url = "http://archive.org/advancedsearch.php?q=\"\"+" + mediaType + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&sort[]=addeddate+desc&rows=100&output=json";
+
+            Console.WriteLine("[Info] Searching:" + latest_url);
+
+            // Get JSON from API
+            string results_json = GetJsonResponse(latest_url);
 
             if (string.IsNullOrEmpty(results_json))
             {
@@ -196,6 +231,51 @@ namespace SoftwareShelf_Desktop
                     else
                     {
                         result.avgRating = 0;
+                    }
+
+                    // Set creator
+                    if (item["creator"] != null)
+                    {
+                        try
+                        {
+                            result.creator = item["creator"][0].ToString();
+                        }
+                        catch
+                        {
+                            result.creator = item["creator"].ToString();
+                        }
+                    }
+                    else
+                    {
+                        result.creator = "";
+                    }
+
+                    // Set date
+                    if (item["date"] != null)
+                    {
+                        DateTime date;
+                        DateTime.TryParseExact(item["date"].ToString(), "M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+                        result.date = date.Year.ToString();
+                    }
+                    else
+                    {
+                        result.date = "";
+                    }
+
+                    // Set topic
+                    if (item["subject"] != null)
+                    {
+                        try {
+                            result.topic = item["subject"][0].ToString();
+                        }
+                        catch
+                        {
+                            result.topic = item["subject"].ToString();
+                        }
+                    }
+                    else
+                    {
+                        result.topic = "";
                     }
 
                     results.Add(result);

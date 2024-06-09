@@ -89,7 +89,7 @@ namespace SoftwareShelf_Desktop
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = aria2cPath;
-            startInfo.Arguments = $"-x {numChunks} -d \"{downloadPath}\" -o \"{fileName}\" --allow-overwrite=true --seed-time=0 \"{downloadUrl}\" ";
+            startInfo.Arguments = $"-x {numChunks} -d \"{downloadPath}\" -o \"{fileName}\" --allow-overwrite=true --seed-time=0 --check-certificate=false \"{downloadUrl}\" ";
             startInfo.CreateNoWindow = true;
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true; // Add this line to redirect the console output
@@ -120,8 +120,8 @@ namespace SoftwareShelf_Desktop
                 Downloads[0].downloadSpeed = "Preallocating";
             }
 
-            // Check if the output is not null and contains a % sign
-            if (aria2output != null && aria2output.Contains("%"))
+            // Check if the output is not null and contains a % sign and does not contain "archive.org"
+            if (aria2output != null && aria2output.Contains("%") && !aria2output.Contains("archive.org"))
             {
                 if (aria2output.IndexOf("%") >= 3)
                 {
@@ -153,6 +153,12 @@ namespace SoftwareShelf_Desktop
                         Downloads[0].downloadSpeed = speed + "/s";
                     }
                 }
+            }
+
+            // Error handling for when Archive.org redirects to HTTPS downloads
+            if (aria2output != null && aria2output.Contains("SSL/TLS handshake failure"))
+            {
+                MessageBox.Show("Error 23: File Download Failed. It appears that Archive.org has redirected your download to an HTTPS link, which is not currently supported. Please try again later or try the ZIP option.");
             }
         }
 
@@ -256,7 +262,7 @@ namespace SoftwareShelf_Desktop
             // If download fails and was not canceled, alert user
             if (e.Error != null && !e.Cancelled)
             {
-                MessageBox.Show("Error 22: File Download Failed: " + e.Error.ToString());
+                MessageBox.Show("Error 22: File Download Failed: " + e.Error.ToString() + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
             }
 
             // Set Progress to 100%
