@@ -31,10 +31,16 @@ namespace SoftwareShelf_Desktop
             // Get available files using ArchiveHandler
             files = ArchiveHandler.GetAvailableFiles(itemIdentifier);
 
-            // Add files to listbox
-            foreach (string file in files)
+            try
             {
-                filesListBox.Items.Add(file);
+                // Add files to listbox
+                foreach (string file in files)
+                {
+                    filesListBox.Items.Add(file);
+                }
+            } catch {
+                MessageBox.Show("Error 41: No files found. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
             }
 
             // Blacklist specific file types: xml|sqlite|torrent

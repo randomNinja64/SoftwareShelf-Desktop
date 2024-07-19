@@ -74,7 +74,6 @@
             this.resultDescription = new System.Windows.Forms.TextBox();
             this.resultPreview = new System.Windows.Forms.PictureBox();
             this.resultsGrid = new System.Windows.Forms.DataGridView();
-            this.controlTabs = new System.Windows.Forms.TabControl();
             this.resultName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.avgRating = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.resultSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -84,6 +83,7 @@
             this.creator = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.topic = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.controlTabs = new System.Windows.Forms.TabControl();
             this.downloadTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.threadsNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.downloadsDataGridView)).BeginInit();
@@ -619,20 +619,6 @@
             this.resultsGrid.SelectionChanged += new System.EventHandler(this.resultsGrid_SelectionChanged);
             this.resultsGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.resultsGrid_KeyDown);
             // 
-            // controlTabs
-            // 
-            this.controlTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.controlTabs.Controls.Add(this.searchTab);
-            this.controlTabs.Controls.Add(this.downloadTab);
-            this.controlTabs.Location = new System.Drawing.Point(10, 10);
-            this.controlTabs.Margin = new System.Windows.Forms.Padding(1);
-            this.controlTabs.Name = "controlTabs";
-            this.controlTabs.SelectedIndex = 0;
-            this.controlTabs.Size = new System.Drawing.Size(914, 451);
-            this.controlTabs.TabIndex = 0;
-            // 
             // resultName
             // 
             this.resultName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -699,6 +685,20 @@
             this.topic.ReadOnly = true;
             this.topic.Visible = false;
             // 
+            // controlTabs
+            // 
+            this.controlTabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.controlTabs.Controls.Add(this.searchTab);
+            this.controlTabs.Controls.Add(this.downloadTab);
+            this.controlTabs.Location = new System.Drawing.Point(10, 10);
+            this.controlTabs.Margin = new System.Windows.Forms.Padding(1);
+            this.controlTabs.Name = "controlTabs";
+            this.controlTabs.SelectedIndex = 0;
+            this.controlTabs.Size = new System.Drawing.Size(914, 451);
+            this.controlTabs.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -708,7 +708,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(563, 400);
             this.Name = "MainForm";
-            this.Text = "SoftwareShelf Desktop 1.4.5";
+            this.Text = "SoftwareShelf Desktop 1.4.7";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.downloadTab.ResumeLayout(false);

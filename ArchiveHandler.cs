@@ -66,15 +66,24 @@ namespace SoftwareShelf_Desktop
             // Logging
             Console.WriteLine("[Info] Grabbing latest items for selected type.");
 
+            // Hotfix for Latest not working
+            string mediaTypeQuery = "";
+
             // Check if mediaType is not empty or blank
             if (!string.IsNullOrEmpty(mediaType))
             {
                 // Set MediaType
-                mediaType = "AND+mediatype:(" + mediaType + ")";
+                mediaTypeQuery = "AND+mediatype:(" + mediaType + ")";
+            }
+
+            // Hotfix for Latest not working
+            if (mediaType == "")
+            {
+                mediaType = "all";
             }
 
             // Query URL for latest items
-            string latest_url = "http://archive.org/advancedsearch.php?q=\"\"+" + mediaType + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&sort[]=addeddate+desc&rows=100&output=json";
+            string latest_url = "http://archive.org/advancedsearch.php?q=\"" + mediaType + "\"+" + mediaTypeQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&sort[]=addeddate+desc&rows=100&output=json";
 
             Console.WriteLine("[Info] Searching:" + latest_url);
 
@@ -104,7 +113,7 @@ namespace SoftwareShelf_Desktop
 
             if (string.IsNullOrEmpty(metadata_json))
             {
-                MessageBox.Show("Error 11: Error retrieving files. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show("Error 11: Error retrieving files. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
 
@@ -191,6 +200,8 @@ namespace SoftwareShelf_Desktop
                 JObject results_obj = JObject.Parse(resultsJson);
                 JArray results_array = (JArray)results_obj["response"]["docs"];
 
+
+
                 foreach (var item in results_array)
                 {
                     // Skip items that are access restricted
@@ -204,9 +215,18 @@ namespace SoftwareShelf_Desktop
                     {
                         title = item["title"].ToString(),
                         identifier = item["identifier"].ToString(),
-                        size = (Int64)item["item_size"] / 1024,
-                        downloads = (Int64)item["downloads"]
+                        size = (Int64)item["item_size"] / 1024
                     };
+
+                    // If no value exists for downloads, set it to 0
+                    if (item["downloads"] != null)
+                    {
+                        result.downloads = (Int64)item["downloads"];
+                    }
+                    else
+                    {
+                        result.downloads = 0;
+                    }
 
                     // Set the description. If it doesn't exist, set it to "No description found."
                     if (item["description"] != null)
@@ -265,7 +285,8 @@ namespace SoftwareShelf_Desktop
                     // Set topic
                     if (item["subject"] != null)
                     {
-                        try {
+                        try
+                        {
                             result.topic = item["subject"][0].ToString();
                         }
                         catch
