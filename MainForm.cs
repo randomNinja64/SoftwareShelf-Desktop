@@ -332,6 +332,7 @@ namespace SoftwareShelf_Desktop
                 if (result == DialogResult.No)
                 {
                     e.Cancel = true;
+                   return;
                 }
             }
 

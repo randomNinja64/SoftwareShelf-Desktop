@@ -708,7 +708,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(563, 400);
             this.Name = "MainForm";
-            this.Text = "SoftwareShelf Desktop 1.4.7";
+            this.Text = "SoftwareShelf Desktop 1.4.8";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.downloadTab.ResumeLayout(false);
