@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Security.Principal;
 using System.Windows.Forms;
 
 namespace SoftwareShelf_Desktop
@@ -102,14 +104,8 @@ namespace SoftwareShelf_Desktop
         // Function to get available files for an identifier on Archive.org
         public static List<string> GetAvailableFiles(string identifier)
         {
-            // Create a list of strings to store available files
-            //List<string> availableFiles = new List<string>();
-
-            // Create a string to store the URL to download the JSON response from
-            string metadata_url = "http://archive.org/metadata/" + identifier;
-
-            // Create a string to store the JSON response
-            string metadata_json = GetJsonResponse(metadata_url);
+            // Get metadata for item
+            string metadata_json = GetMetadata(identifier);
 
             if (string.IsNullOrEmpty(metadata_json))
             {
@@ -118,6 +114,52 @@ namespace SoftwareShelf_Desktop
             }
 
             return ParseAvailableFiles(metadata_json);
+        }
+
+        public static List<Review> GetReviews(string identifier)
+        {
+            // Get metadata for item
+            string metadata_json = GetMetadata(identifier);
+
+            // Deserialize the JSON into a JObject.
+            JObject metadataObj = JsonConvert.DeserializeObject(metadata_json) as JObject;
+
+            List<Review> reviews = new List<Review>();
+
+            // Check if the "reviews" property exists.
+            JToken reviewsToken;
+            if (metadataObj != null && metadataObj.TryGetValue("reviews", out reviewsToken))
+            {
+                JArray reviewsArray = reviewsToken as JArray;
+                if (reviewsArray != null)
+                {
+                    foreach (JToken review in reviewsArray)
+                    {
+                        // Extract the necessary properties and store in a review object.
+                        Review reviewObj = new Review
+                        {
+                            Title = (string)review["reviewtitle"] ?? string.Empty,
+                            Stars = (string)review["stars"] ?? string.Empty,
+                            Body = (string)review["reviewbody"] ?? string.Empty,
+                            Reviewer = (string)review["reviewer"] ?? string.Empty
+                        };
+
+                        // Add review to list
+                        reviews.Add(reviewObj);
+                    }
+                }
+                return reviews;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private static string GetMetadata(string identifier)
+        {
+            // Create a string to store the JSON response
+            return GetJsonResponse("http://archive.org/metadata/" + identifier);
         }
 
         private static string BuildAdditionalQuery(string creatorName, string topicName, string yearText)
@@ -199,8 +241,6 @@ namespace SoftwareShelf_Desktop
                 // Try to parse JSON response into JSON object
                 JObject results_obj = JObject.Parse(resultsJson);
                 JArray results_array = (JArray)results_obj["response"]["docs"];
-
-
 
                 foreach (var item in results_array)
                 {

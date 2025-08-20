@@ -34,6 +34,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.progressTimer = new System.Windows.Forms.Timer(this.components);
             this.downloadTab = new System.Windows.Forms.TabPage();
+            this.torrentChk = new System.Windows.Forms.CheckBox();
             this.threadsNum = new System.Windows.Forms.NumericUpDown();
             this.threadLbl = new System.Windows.Forms.Label();
             this.boostChk = new System.Windows.Forms.CheckBox();
@@ -72,7 +73,6 @@
             this.zipBtn = new System.Windows.Forms.Button();
             this.downloadButton = new System.Windows.Forms.Button();
             this.resultDescription = new System.Windows.Forms.TextBox();
-            this.resultPreview = new System.Windows.Forms.PictureBox();
             this.resultsGrid = new System.Windows.Forms.DataGridView();
             this.resultName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.avgRating = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -84,14 +84,16 @@
             this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.topic = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.controlTabs = new System.Windows.Forms.TabControl();
+            this.reviewButton = new System.Windows.Forms.Button();
+            this.resultPreview = new System.Windows.Forms.PictureBox();
             this.downloadTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.threadsNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.downloadsDataGridView)).BeginInit();
             this.searchTab.SuspendLayout();
             this.searchPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.resultsGrid)).BeginInit();
             this.controlTabs.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).BeginInit();
             this.SuspendLayout();
             // 
             // progressTimer
@@ -101,6 +103,7 @@
             // 
             // downloadTab
             // 
+            this.downloadTab.Controls.Add(this.torrentChk);
             this.downloadTab.Controls.Add(this.threadsNum);
             this.downloadTab.Controls.Add(this.threadLbl);
             this.downloadTab.Controls.Add(this.boostChk);
@@ -119,10 +122,27 @@
             this.downloadTab.UseVisualStyleBackColor = true;
             this.downloadTab.Resize += new System.EventHandler(this.downloadTab_Resize);
             // 
+            // torrentChk
+            // 
+            this.torrentChk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.torrentChk.AutoSize = true;
+            this.torrentChk.Checked = true;
+            this.torrentChk.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.torrentChk.Enabled = false;
+            this.torrentChk.Location = new System.Drawing.Point(483, 400);
+            this.torrentChk.Margin = new System.Windows.Forms.Padding(0);
+            this.torrentChk.Name = "torrentChk";
+            this.torrentChk.Size = new System.Drawing.Size(106, 17);
+            this.torrentChk.TabIndex = 4;
+            this.torrentChk.Text = "&Process Torrents";
+            this.torrentChk.UseVisualStyleBackColor = true;
+            this.torrentChk.CheckedChanged += new System.EventHandler(this.torrentChk_CheckedChanged);
+            // 
             // threadsNum
             // 
             this.threadsNum.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.threadsNum.Location = new System.Drawing.Point(590, 396);
+            this.threadsNum.Enabled = false;
+            this.threadsNum.Location = new System.Drawing.Point(593, 398);
             this.threadsNum.Maximum = new decimal(new int[] {
             8,
             0,
@@ -135,7 +155,7 @@
             0});
             this.threadsNum.Name = "threadsNum";
             this.threadsNum.Size = new System.Drawing.Size(45, 20);
-            this.threadsNum.TabIndex = 5;
+            this.threadsNum.TabIndex = 6;
             this.threadsNum.Value = new decimal(new int[] {
             4,
             0,
@@ -150,14 +170,14 @@
             this.threadLbl.Location = new System.Drawing.Point(590, 380);
             this.threadLbl.Name = "threadLbl";
             this.threadLbl.Size = new System.Drawing.Size(49, 13);
-            this.threadLbl.TabIndex = 4;
+            this.threadLbl.TabIndex = 5;
             this.threadLbl.Text = "&Threads:";
             // 
             // boostChk
             // 
             this.boostChk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.boostChk.AutoSize = true;
-            this.boostChk.Location = new System.Drawing.Point(535, 397);
+            this.boostChk.Location = new System.Drawing.Point(429, 400);
             this.boostChk.Margin = new System.Windows.Forms.Padding(0);
             this.boostChk.Name = "boostChk";
             this.boostChk.Size = new System.Drawing.Size(50, 17);
@@ -170,10 +190,10 @@
             // openDownloadsBtn
             // 
             this.openDownloadsBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.openDownloadsBtn.Location = new System.Drawing.Point(640, 394);
+            this.openDownloadsBtn.Location = new System.Drawing.Point(642, 396);
             this.openDownloadsBtn.Name = "openDownloadsBtn";
             this.openDownloadsBtn.Size = new System.Drawing.Size(98, 23);
-            this.openDownloadsBtn.TabIndex = 6;
+            this.openDownloadsBtn.TabIndex = 7;
             this.openDownloadsBtn.Text = "&Open Downloads";
             this.openDownloadsBtn.UseVisualStyleBackColor = true;
             this.openDownloadsBtn.Click += new System.EventHandler(this.openDownloadsBtn_Click);
@@ -182,10 +202,10 @@
             // 
             this.cancelDlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelDlButton.Enabled = false;
-            this.cancelDlButton.Location = new System.Drawing.Point(824, 394);
+            this.cancelDlButton.Location = new System.Drawing.Point(824, 396);
             this.cancelDlButton.Name = "cancelDlButton";
             this.cancelDlButton.Size = new System.Drawing.Size(76, 23);
-            this.cancelDlButton.TabIndex = 8;
+            this.cancelDlButton.TabIndex = 9;
             this.cancelDlButton.Text = "&Cancel";
             this.cancelDlButton.UseVisualStyleBackColor = true;
             this.cancelDlButton.Click += new System.EventHandler(this.cancelDlButton_Click);
@@ -194,7 +214,7 @@
             // 
             this.dlDirLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dlDirLabel.AutoSize = true;
-            this.dlDirLabel.Location = new System.Drawing.Point(7, 380);
+            this.dlDirLabel.Location = new System.Drawing.Point(3, 380);
             this.dlDirLabel.Name = "dlDirLabel";
             this.dlDirLabel.Size = new System.Drawing.Size(108, 13);
             this.dlDirLabel.TabIndex = 1;
@@ -205,20 +225,20 @@
             this.dlDirTxtBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dlDirTxtBox.BackColor = System.Drawing.SystemColors.Window;
-            this.dlDirTxtBox.Location = new System.Drawing.Point(7, 396);
+            this.dlDirTxtBox.Location = new System.Drawing.Point(6, 398);
             this.dlDirTxtBox.Name = "dlDirTxtBox";
             this.dlDirTxtBox.ReadOnly = true;
-            this.dlDirTxtBox.Size = new System.Drawing.Size(523, 20);
+            this.dlDirTxtBox.Size = new System.Drawing.Size(419, 20);
             this.dlDirTxtBox.TabIndex = 2;
             this.dlDirTxtBox.TextChanged += new System.EventHandler(this.dlDirTxtBox_TextChanged);
             // 
             // setDirBtn
             // 
             this.setDirBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.setDirBtn.Location = new System.Drawing.Point(743, 394);
+            this.setDirBtn.Location = new System.Drawing.Point(744, 396);
             this.setDirBtn.Name = "setDirBtn";
             this.setDirBtn.Size = new System.Drawing.Size(76, 23);
-            this.setDirBtn.TabIndex = 7;
+            this.setDirBtn.TabIndex = 8;
             this.setDirBtn.Text = "&Browse...";
             this.setDirBtn.UseVisualStyleBackColor = true;
             this.setDirBtn.Click += new System.EventHandler(this.setDirBtn_Click);
@@ -331,6 +351,7 @@
             // 
             // searchTab
             // 
+            this.searchTab.Controls.Add(this.reviewButton);
             this.searchTab.Controls.Add(this.topicInfoLbl);
             this.searchTab.Controls.Add(this.publishedInfoLbl);
             this.searchTab.Controls.Add(this.creatorInfoLbl);
@@ -354,7 +375,7 @@
             // 
             this.topicInfoLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.topicInfoLbl.AutoSize = true;
-            this.topicInfoLbl.Location = new System.Drawing.Point(704, 241);
+            this.topicInfoLbl.Location = new System.Drawing.Point(704, 243);
             this.topicInfoLbl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.topicInfoLbl.Name = "topicInfoLbl";
             this.topicInfoLbl.Size = new System.Drawing.Size(37, 13);
@@ -365,7 +386,7 @@
             // 
             this.publishedInfoLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.publishedInfoLbl.AutoSize = true;
-            this.publishedInfoLbl.Location = new System.Drawing.Point(704, 224);
+            this.publishedInfoLbl.Location = new System.Drawing.Point(704, 225);
             this.publishedInfoLbl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.publishedInfoLbl.Name = "publishedInfoLbl";
             this.publishedInfoLbl.Size = new System.Drawing.Size(56, 13);
@@ -560,25 +581,12 @@
             // 
             this.resultDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.resultDescription.Location = new System.Drawing.Point(704, 259);
+            this.resultDescription.Location = new System.Drawing.Point(704, 261);
             this.resultDescription.Multiline = true;
             this.resultDescription.Name = "resultDescription";
             this.resultDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.resultDescription.Size = new System.Drawing.Size(196, 126);
+            this.resultDescription.Size = new System.Drawing.Size(196, 93);
             this.resultDescription.TabIndex = 5;
-            // 
-            // resultPreview
-            // 
-            this.resultPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.resultPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.resultPreview.Image = global::SoftwareShelf_Desktop.Properties.Resources.placeholder;
-            this.resultPreview.Location = new System.Drawing.Point(704, 7);
-            this.resultPreview.Name = "resultPreview";
-            this.resultPreview.Size = new System.Drawing.Size(196, 196);
-            this.resultPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.resultPreview.TabIndex = 1;
-            this.resultPreview.TabStop = false;
-            this.resultPreview.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(this.resultPreview_LoadCompleted);
             // 
             // resultsGrid
             // 
@@ -699,6 +707,31 @@
             this.controlTabs.Size = new System.Drawing.Size(914, 451);
             this.controlTabs.TabIndex = 0;
             // 
+            // reviewButton
+            // 
+            this.reviewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.reviewButton.Enabled = false;
+            this.reviewButton.Location = new System.Drawing.Point(704, 359);
+            this.reviewButton.Name = "reviewButton";
+            this.reviewButton.Size = new System.Drawing.Size(196, 27);
+            this.reviewButton.TabIndex = 8;
+            this.reviewButton.Text = "&Reviews";
+            this.reviewButton.UseVisualStyleBackColor = true;
+            this.reviewButton.Click += new System.EventHandler(this.reviewButton_Click);
+            // 
+            // resultPreview
+            // 
+            this.resultPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.resultPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.resultPreview.Image = global::SoftwareShelf_Desktop.Properties.Resources.placeholder;
+            this.resultPreview.Location = new System.Drawing.Point(704, 7);
+            this.resultPreview.Name = "resultPreview";
+            this.resultPreview.Size = new System.Drawing.Size(196, 196);
+            this.resultPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.resultPreview.TabIndex = 1;
+            this.resultPreview.TabStop = false;
+            this.resultPreview.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(this.resultPreview_LoadCompleted);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -706,9 +739,9 @@
             this.ClientSize = new System.Drawing.Size(934, 471);
             this.Controls.Add(this.controlTabs);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(563, 400);
+            this.MinimumSize = new System.Drawing.Size(563, 500);
             this.Name = "MainForm";
-            this.Text = "SoftwareShelf Desktop 1.4.8";
+            this.Text = "SoftwareShelf Desktop 1.5.0";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.downloadTab.ResumeLayout(false);
@@ -719,9 +752,9 @@
             this.searchTab.PerformLayout();
             this.searchPanel.ResumeLayout(false);
             this.searchPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.resultsGrid)).EndInit();
             this.controlTabs.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -779,6 +812,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn creator;
         private System.Windows.Forms.DataGridViewTextBoxColumn date;
         private System.Windows.Forms.DataGridViewTextBoxColumn topic;
+        public System.Windows.Forms.CheckBox torrentChk;
+        private System.Windows.Forms.Button reviewButton;
     }
 }
 

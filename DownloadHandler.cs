@@ -45,32 +45,87 @@ namespace SoftwareShelf_Desktop
         // Function to download item
         public void downloadItem(Download downloadItem, string destination)
         {
+            // Calculate destination path
+            if (!downloadItem.downloadUrl.ToString().StartsWith("http://archive.org/compress"))
+            {
+                /*   
+                // Download 
+                destination = Path.Combine(destination, downloadItem.downloadIdentifier);
+                // Create destination directory
+                Directory.CreateDirectory(destination);
+                // Download file*/
+
+                // Split the URL into segments
+                Uri uri = downloadItem.downloadUrl;
+                string[] segments = uri.AbsolutePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                // Find the index of the download identifier in the segments.
+                int identifierIndex = Array.IndexOf(segments, downloadItem.downloadIdentifier);
+
+                // If the download identifier is found, remove any segments before it.
+                if (identifierIndex >= 0)
+                {
+                    segments = segments.Skip(identifierIndex).ToArray();
+                }
+                else
+                {
+                    // If not found, default to using the provided downloadIdentifier.
+                    segments = new string[] { downloadItem.downloadIdentifier };
+                }
+
+                // Build the destination folder path using all segments except the last one (assumed to be the file name).
+                if (segments.Length > 1)
+                {
+                    // Start with the first segment.
+                    string folderStructure = segments[0];
+                    // Loop through the segments, excluding the last element.
+                    for (int i = 1; i < segments.Length - 1; i++)
+                    {
+                        folderStructure = Path.Combine(folderStructure, segments[i]);
+                    }
+                    destination = Path.Combine(destination, folderStructure);
+                }
+                else
+                {
+                    // Only the download identifier is available.
+                    destination = Path.Combine(destination, segments[0]);
+                }
+
+                // Create the destination directory.
+                Directory.CreateDirectory(destination);
+            }
+
             // If Aria2 is disabled, use standard procedures
             if (!Properties.Settings.Default.AriaMode)
             {
-                downloadItem.WebClient = new WebClient();
-
-                if (!downloadItem.downloadUrl.ToString().StartsWith("http://archive.org/compress"))
-                {
-                    // Download 
-                    destination = destination + "\\" + downloadItem.downloadIdentifier;
-                    // Create destination directory
-                    Directory.CreateDirectory(destination);
-                    // Download file
-                }
-                downloadItem.WebClient.DownloadFileAsync(downloadItem.downloadUrl, destination + "\\" + downloadItem.fileName);
-                // Start Stopwatch
-                downloadItem.downloadTime.Start();
-                // Add Event Handlers For Progress and Completion
-                downloadItem.WebClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(webClient_DownloadProgressChanged);
-                // Create async event handler for completion and pass current download into it
-                downloadItem.WebClient.DownloadFileCompleted += (sender, e) => webClient_DownloadFileCompleted(sender, e, downloadItem);
+                downloadItemSinglethreaded(downloadItem, destination);
             }
             else
             {
                 // Use Chunked/Multithreaded Downloading
                 downloadItemMultithreaded(downloadItem, destination, Properties.Settings.Default.DLThreads);
             }
+        }
+
+        // Function to download item (non-multithreaded)
+        public void downloadItemSinglethreaded(Download downloadItem, string destination)
+        {
+            downloadItem.WebClient = new WebClient();
+
+            // Attach event handlers
+            // Add Event Handlers For Progress and Completion
+            downloadItem.WebClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(webClient_DownloadProgressChanged);
+            // Create async event handler for completion and pass current download into it 
+            downloadItem.WebClient.DownloadFileCompleted += (sender, e) =>
+            {
+                webClient_DownloadFileCompleted(sender, e, downloadItem);
+                downloadItem.WebClient.Dispose();
+            };
+
+            downloadItem.WebClient.DownloadFileAsync(downloadItem.downloadUrl, destination + "\\" + downloadItem.fileName);
+
+            // Start Stopwatch
+            downloadItem.downloadTime.Start();    
         }
 
         // Function to download item using chunked/multithreaded downloading
@@ -81,10 +136,11 @@ namespace SoftwareShelf_Desktop
             string fileName = downloadItem.fileName;
             string downloadPath = destination;
 
-            // Set download path based on whether or not the user is downloading a ZIP of an archive identifier.
-            if (!downloadItem.downloadUrl.ToString().StartsWith("http://archive.org/compress"))
+            // If the user is trying to download a torrent file and process torrents is disabled, download the .torrent singlethreaded
+            if (!Properties.Settings.Default.TorrentProcessing && downloadUrl.ToLower().EndsWith(".torrent"))
             {
-                downloadPath = Path.Combine(destination, downloadItem.downloadIdentifier);
+                downloadItemSinglethreaded(downloadItem, destination);
+                return;
             }
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -107,8 +163,11 @@ namespace SoftwareShelf_Desktop
             process.OutputDataReceived += (sender, e) => updateAria2Progress(e.Data);
             process.BeginOutputReadLine();
             // Async event handler for when process exits
-            process.Exited += (sender, e) => OnDownloadCompleted(downloadItem);
-
+            process.Exited += (sender, e) =>
+            {
+                OnDownloadCompleted(downloadItem);
+                process.Dispose();
+            };
         }
 
         public void updateAria2Progress(string aria2output)
@@ -293,32 +352,28 @@ namespace SoftwareShelf_Desktop
         // Function to abort download
         public void Abort(Download downloadToAbort)
         {
-            // If multithreaded mode is on, advise that multithreaded downloads cannot be aborted at this time
-            if (Properties.Settings.Default.AriaMode == true)
+            // If downloadToAbort is the first item in the queue, abort it and remove it from the queue
+            if (Downloads[0] == downloadToAbort)
             {
-                // Kill running aria2c process
-                Process[] aria2cProcesses = Process.GetProcessesByName("aria2c");
-                foreach (Process process in aria2cProcesses)
+                if (Properties.Settings.Default.AriaMode == true)
                 {
-                    process.Kill();
-                }
-            }
-            // IF multithreaded mode is off, abort the download
-            else
-            {
-                // If downloadToAbort is the first item in the queue, abort it and remove it from the queue
-                if (Downloads[0] == downloadToAbort)
-                {
-                    downloadToAbort.WebClient.CancelAsync();
+                    // Kill running aria2c process
+                    Process[] aria2cProcesses = Process.GetProcessesByName("aria2c");
+                    foreach (Process process in aria2cProcesses)
+                    {
+                        process.Kill();
+                    }
                 }
                 else
                 {
-                    // Remove download from queue
-                    Downloads.Remove(downloadToAbort);
+                    downloadToAbort.WebClient.CancelAsync();
                 }
             }
-
+            else
+            {
+                // Remove download from queue
+                Downloads.Remove(downloadToAbort);
+            }
         }
-
     }
 }

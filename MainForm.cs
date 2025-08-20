@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace SoftwareShelf_Desktop
@@ -51,8 +52,12 @@ namespace SoftwareShelf_Desktop
             {
                 Properties.Settings.Default.DLThreads = 4;
             }
+            // If torrent processing is not set in config, set it to true
+            if (Properties.Settings.Default.TorrentProcessing == null)
+            {
+                Properties.Settings.Default.TorrentProcessing = false;
+            }
             #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-
 
             // Save default settings
             Properties.Settings.Default.Save();
@@ -75,6 +80,16 @@ namespace SoftwareShelf_Desktop
 
             // Set boostChk based on AriaMode boolean
             boostChk.Checked = Properties.Settings.Default.AriaMode;
+
+            // If aria2 is enabled, allow torrentChk to be checked/unchecked, and threads to be changed
+            if (boostChk.Checked)
+            {
+                torrentChk.Enabled = true;
+                threadsNum.Enabled = true;
+            }
+
+            // Set torrentChk based on TorrentProcessing boolean
+            torrentChk.Checked = Properties.Settings.Default.TorrentProcessing;
 
             // Set DLThreads Number
             threadsNum.Value = Properties.Settings.Default.DLThreads;
@@ -189,6 +204,9 @@ namespace SoftwareShelf_Desktop
                 // Enable the download button
                 downloadButton.Enabled = true;
 
+                // Enable the reviews button
+                reviewButton.Enabled = true;
+
                 // Check the size of the item
                 long sizeInKiB = Convert.ToInt64(resultsGrid.Rows[e.RowIndex].Cells[2].Value);
                 double sizeInGB = sizeInKiB / (1024.0 * 1024.0); // Convert KiB to GB
@@ -296,8 +314,11 @@ namespace SoftwareShelf_Desktop
             // If a download is running, abort it and delete the file
             if (downloadHandler.Downloads.Count > 0)
             {
+                // Retrieve the Download object bound to the selected row.
+                Download selectedDownload = (Download)downloadsDataGridView.SelectedRows[0].DataBoundItem;
+
                 // Abort the selected download
-                downloadHandler.Abort(downloadHandler.Downloads[downloadsDataGridView.SelectedRows[0].Index]);
+                downloadHandler.Abort(selectedDownload);
             }
         }
 
@@ -384,11 +405,15 @@ namespace SoftwareShelf_Desktop
             {
                 Properties.Settings.Default.AriaMode = true;
                 Properties.Settings.Default.Save();
+                torrentChk.Enabled = true;
+                threadsNum.Enabled = true;
             }
             else
             {
                 Properties.Settings.Default.AriaMode = false;
                 Properties.Settings.Default.Save();
+                torrentChk.Enabled = false;
+                threadsNum.Enabled = false;
             }
         }
 
@@ -437,6 +462,9 @@ namespace SoftwareShelf_Desktop
             // Check if any rows are selected
             if (resultsGrid.SelectedRows.Count == 0)
             {
+                // Disable the review button
+                reviewButton.Enabled = false;
+                
                 // Disable the download button if no rows are selected
                 downloadButton.Enabled = false;
 
@@ -522,6 +550,27 @@ namespace SoftwareShelf_Desktop
             {
                 resultPreview.Image = SoftwareShelf_Desktop.Properties.Resources.placeholder;
             }
+        }
+
+        private void torrentChk_CheckedChanged(object sender, EventArgs e)
+        {
+            //If checked, enable torrent processing
+            if (torrentChk.Checked)
+            {
+                Properties.Settings.Default.TorrentProcessing = true;
+                Properties.Settings.Default.Save();
+            }
+            else
+            {
+                Properties.Settings.Default.TorrentProcessing = false;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private void reviewButton_Click(object sender, EventArgs e)
+        {
+            ReviewForm reviewForm = new ReviewForm(resultsGrid.SelectedRows[0].Cells[3].Value.ToString());
+            reviewForm.ShowDialog();
         }
     }
     }
