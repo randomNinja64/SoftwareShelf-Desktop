@@ -47,7 +47,7 @@ namespace SoftwareShelf_Desktop
             }
 
             // Base URL for API
-            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+" + mediaType + additionalQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&sort[]=&sort[]=&sort[]=&rows=100&output=json";
+            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+" + mediaType + additionalQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&rows=100&output=json";
 
             //MessageBox.Show(search_url);
             Console.WriteLine("[Info] Searching:" + search_url);
