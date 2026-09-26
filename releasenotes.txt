@@ -25,3 +25,11 @@ Release Notes 1.4.5:
 - Added filter to downloads menu
 - Added info (Creator, Publication Year, Topic) above description
 - Refactored some MainForm code relating to search handling.
+
+Release Notes 1.5.0:
+- Added option to enable/disable torrent processing in Aria2 mode
+- Added ability to view user reviews from Archive.org using the "Reviews" button.
+- Fixed bug with canceling downloads (selected item in list is now cancelled rather than the first one)
+- Fixed subfolder handling in Archive.org items so that files are downloaded to the appropriate subfolder, rather than downloading all files to the root folder
+- Improved alignment of settings controls in the Downloads tab
+- Improved optimizations for singlethreaded mode (WebClient is now properly disposed of after usage)
