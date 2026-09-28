@@ -6,13 +6,6 @@ namespace SoftwareShelf_Desktop
 {
     public class Download
     {
-        private Uri DownloadUrl;
-        private string DownloadIdentifier;
-        private string FileName;
-        private double DownloadProgress;
-        private Stopwatch DownloadTime = new Stopwatch();
-        private string DownloadSpeed;
-
         // Web Client Associated With Download
         public WebClient WebClient;
 
@@ -23,47 +16,20 @@ namespace SoftwareShelf_Desktop
         public string localPath;
         public bool cancelRequested;
 
-        // Create properties
-        public Uri downloadUrl
-        {
-            get { return DownloadUrl; }
-            set { DownloadUrl = value; }
-        }
-        public double downloadProgress
-        {
-            get { return DownloadProgress; }
-            set { DownloadProgress = value; }
-        }
-        public Stopwatch downloadTime
-        {
-            get { return DownloadTime; }
-            set { DownloadTime = value; }
-        }
-        public string downloadIdentifier
-        {
-            get { return DownloadIdentifier; }
-            set { DownloadIdentifier = value; }
-        }
-        public string fileName
-        {
-            get { return FileName; }
-            set { FileName = value; }
-        }
-
-        public string downloadSpeed
-        {
-            get { return DownloadSpeed; }
-            set { DownloadSpeed = value; }
-        }
+        public Uri downloadUrl { get; set; }
+        public double downloadProgress { get; set; }
+        public Stopwatch downloadTime { get; set; }
+        public string downloadIdentifier { get; set; }
+        public string fileName { get; set; }
+        public string downloadSpeed { get; set; }
 
         public Download(Uri downloadUrl, string identifier, string fileName)
         {
-            this.DownloadUrl = downloadUrl;
-            this.DownloadProgress = 0;
-            this.DownloadIdentifier = identifier;
-            this.FileName = fileName;
-            this.DownloadProgress = 0;
-            this.DownloadTime = new Stopwatch();
-        }        
+            this.downloadUrl = downloadUrl;
+            this.downloadProgress = 0;
+            this.downloadIdentifier = identifier;
+            this.fileName = fileName;
+            this.downloadTime = new Stopwatch();
+        }
     }
 }

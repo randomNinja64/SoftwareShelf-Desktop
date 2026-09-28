@@ -52,25 +52,10 @@ namespace SoftwareShelf_Desktop
             return RunQuery(query, "addeddate+desc");
         }
 
-        // Function to get available files for an identifier on Archive.org
-        public static List<string> GetAvailableFiles(string identifier)
-        {
-            // Get metadata for item
-            string metadata_json = GetMetadata(identifier);
-
-            if (string.IsNullOrEmpty(metadata_json))
-            {
-                //MessageBox.Show("Error 11: Error retrieving files. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-
-            return ParseAvailableFiles(metadata_json);
-        }
-
         public static List<Review> GetReviews(string identifier)
         {
             // Get metadata for item
-            string metadata_json = GetMetadata(identifier);
+            string metadata_json = GetJsonResponse("http://archive.org/metadata/" + identifier);
 
             // Deserialize the JSON into a JObject.
             JObject metadataObj = JsonConvert.DeserializeObject(metadata_json) as JObject;
@@ -105,12 +90,6 @@ namespace SoftwareShelf_Desktop
             {
                 return null;
             }
-        }
-
-        private static string GetMetadata(string identifier)
-        {
-            // Create a string to store the JSON response
-            return GetJsonResponse("http://archive.org/metadata/" + identifier);
         }
 
         private static string BuildSearchQuery(string query, string mediaType, string creatorName, string topicName, string yearText)
@@ -181,7 +160,7 @@ namespace SoftwareShelf_Desktop
             return ParseSearchResults(resultsJson);
         }
 
-        private static string GetJsonResponse(string url)
+        internal static string GetJsonResponse(string url)
         {
             // LOGGING
             Console.WriteLine("[Info] Getting JSON Response.");
@@ -327,7 +306,7 @@ namespace SoftwareShelf_Desktop
             return token.ToString();
         }
 
-        private static List<string> ParseAvailableFiles(string metadata_json)
+        internal static List<string> ParseAvailableFiles(string metadata_json)
         {
             // LOGGING
             Console.WriteLine("[Info] Parsing available files.");
@@ -358,7 +337,6 @@ namespace SoftwareShelf_Desktop
             }
             catch
             {
-                MessageBox.Show("Error 12: No results found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
         }

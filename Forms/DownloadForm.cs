@@ -28,28 +28,23 @@ namespace SoftwareShelf_Desktop
         private void DownloadForm_Load(object sender, EventArgs e)
         {
             // Get available files using ArchiveHandler
-            files = ArchiveHandler.GetAvailableFiles(itemIdentifier);
-
-            try
+            files = ArchiveHandler.ParseAvailableFiles(ArchiveHandler.GetJsonResponse("http://archive.org/metadata/" + itemIdentifier));
+            if (files == null)
             {
-                // Add files to listbox
-                foreach (string file in files)
-                {
-                    filesListBox.Items.Add(file);
-                }
-            } catch {
                 MessageBox.Show("Error 41: No files found. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
+                return;
+            }
+
+            foreach (string file in files)
+            {
+                filesListBox.Items.Add(file);
             }
 
             // Blacklist specific file types: xml|sqlite|torrent
             for (int i = 0; i < filesListBox.Items.Count; i++)
             {
-                string fileExtension = filesListBox.Items[i].ToString().ToLower();
-                if (!fileExtension.EndsWith(".xml") && !fileExtension.EndsWith(".sqlite") && !fileExtension.EndsWith(".torrent") && !fileExtension.EndsWith(".webp") && !fileExtension.EndsWith(".jpg") && !fileExtension.EndsWith(".png") && !fileExtension.EndsWith(".bmp") && !fileExtension.EndsWith(".jpg"))
-                {
-                    filesListBox.SetItemChecked(i, true);
-                }
+                filesListBox.SetItemChecked(i, !IsUncheckedByDefault(filesListBox.Items[i].ToString()));
             }
         }
 
@@ -75,7 +70,7 @@ namespace SoftwareShelf_Desktop
             foreach (string item in filesListBox.CheckedItems)
             {
                 // Add download to download handler
-                Uri URL = new Uri("http://archive.org/download/" + itemIdentifier + "/" + item);
+                Uri URL = ArchiveDownloadUri(itemIdentifier, item);
                 downloadHandler.addDownload(URL, itemIdentifier, item, progressTimer);
             }
 
@@ -101,6 +96,31 @@ namespace SoftwareShelf_Desktop
             // Update filesListBox
             filesListBox.Items.Clear();
             filesListBox.Items.AddRange(filteredItems.ToArray());
+        }
+
+        private static Uri ArchiveDownloadUri(string identifier, string relativeFile)
+        {
+            System.Text.StringBuilder path = new System.Text.StringBuilder("http://archive.org/download/");
+            path.Append(Uri.EscapeDataString(identifier));
+            string[] parts = relativeFile.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string part in parts)
+            {
+                path.Append('/');
+                path.Append(Uri.EscapeDataString(part));
+            }
+            return new Uri(path.ToString());
+        }
+
+        private static bool IsUncheckedByDefault(string name)
+        {
+            string lower = name.ToLower();
+            return lower.EndsWith(".xml")
+                || lower.EndsWith(".sqlite")
+                || lower.EndsWith(".torrent")
+                || lower.EndsWith(".webp")
+                || lower.EndsWith(".jpg")
+                || lower.EndsWith(".png")
+                || lower.EndsWith(".bmp");
         }
     }
 }

@@ -80,8 +80,7 @@ namespace SoftwareShelf_Desktop
                 // If aria2 is enabled, allow torrentChk to be checked/unchecked, and threads to be changed
                 if (boostChk.Checked)
                 {
-                    torrentChk.Enabled = true;
-                    threadsNum.Enabled = true;
+                    SetAriaChildrenEnabled(true);
                 }
 
                 // Set torrentChk based on TorrentProcessing boolean
@@ -171,25 +170,27 @@ namespace SoftwareShelf_Desktop
 
         private void resultsGrid_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
+            DataGridViewRow row = resultsGrid.Rows[e.RowIndex];
+
             // Set the description textbox's text to the description cell of the currently selected row
-            resultDescription.Text = resultsGrid.Rows[e.RowIndex].Cells[4].Value.ToString();
+            resultDescription.Text = row.Cells["description"].Value.ToString();
 
             if (e.RowIndex != -1)
             {
                 // Get identifier of selected item
-                string identifier = resultsGrid.Rows[e.RowIndex].Cells[3].Value.ToString();
+                string identifier = row.Cells["identifier"].Value.ToString();
 
                 // Download thumbnail
                 resultPreview.ImageLocation = "http://archive.org/download/" + identifier + "/__ia_thumb.jpg";
 
                 // Set creator label
-                creatorInfoLbl.Text = "Creator: " + resultsGrid.Rows[e.RowIndex].Cells[6].Value.ToString();
+                creatorInfoLbl.Text = "Creator: " + row.Cells["creator"].Value.ToString();
 
                 // Set date label
-                publishedInfoLbl.Text = "Published: " + resultsGrid.Rows[e.RowIndex].Cells[7].Value.ToString();
+                publishedInfoLbl.Text = "Published: " + row.Cells["date"].Value.ToString();
 
                 // Set topic label
-                topicInfoLbl.Text = "Topic: " + resultsGrid.Rows[e.RowIndex].Cells[8].Value.ToString();
+                topicInfoLbl.Text = "Topic: " + row.Cells["topic"].Value.ToString();
 
                 // Enable the download button
                 downloadButton.Enabled = true;
@@ -198,7 +199,7 @@ namespace SoftwareShelf_Desktop
                 reviewButton.Enabled = true;
 
                 // Check the size of the item
-                long sizeInKiB = Convert.ToInt64(resultsGrid.Rows[e.RowIndex].Cells[2].Value);
+                long sizeInKiB = Convert.ToInt64(row.Cells["resultSize"].Value);
                 double sizeInGB = sizeInKiB / (1024.0 * 1024.0); // Convert KiB to GB
 
                 // Enable or disable the zip button based on the size
@@ -221,7 +222,7 @@ namespace SoftwareShelf_Desktop
                 // Enumerate items in Downloads tab before dialog
                 int numDownloads = downloadHandler.Downloads.Count;
                 
-                DownloadForm downloadForm = new DownloadForm(resultsGrid.SelectedRows[0].Cells[3].Value.ToString(), downloadHandler, progressTimer);
+                DownloadForm downloadForm = new DownloadForm(resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString(), downloadHandler, progressTimer);
                 downloadForm.ShowDialog();
 
                 // Change selected tab to downloads tab if items were downloaded
@@ -299,11 +300,6 @@ namespace SoftwareShelf_Desktop
             }
         }
 
-        private void downloadsDataGridView_RowEnter(object sender, DataGridViewCellEventArgs e)
-        {
-            cancelDlButton.Enabled = true;
-        }
-
         private void downloadsDataGridView_SelectionChanged(object sender, EventArgs e)
         {
             //If a row is selected, leave the cancel button enabled
@@ -361,8 +357,7 @@ namespace SoftwareShelf_Desktop
             {
                 Properties.Settings.Default.AriaMode = false;
                 Properties.Settings.Default.Save();
-                torrentChk.Enabled = false;
-                threadsNum.Enabled = false;
+                SetAriaChildrenEnabled(false);
                 if (boostChk.Checked)
                 {
                     boostChk.Checked = false;
@@ -370,21 +365,15 @@ namespace SoftwareShelf_Desktop
                 return;
             }
 
-            //If checked, enable aria2
-            if (boostChk.Checked)
-            {
-                Properties.Settings.Default.AriaMode = true;
-                Properties.Settings.Default.Save();
-                torrentChk.Enabled = true;
-                threadsNum.Enabled = true;
-            }
-            else
-            {
-                Properties.Settings.Default.AriaMode = false;
-                Properties.Settings.Default.Save();
-                torrentChk.Enabled = false;
-                threadsNum.Enabled = false;
-            }
+            Properties.Settings.Default.AriaMode = boostChk.Checked;
+            Properties.Settings.Default.Save();
+            SetAriaChildrenEnabled(boostChk.Checked);
+        }
+
+        private void SetAriaChildrenEnabled(bool enabled)
+        {
+            torrentChk.Enabled = enabled;
+            threadsNum.Enabled = enabled;
         }
 
         private void boostChk_Click(object sender, EventArgs e)
@@ -406,13 +395,13 @@ namespace SoftwareShelf_Desktop
                 int numDownloads = downloadHandler.Downloads.Count;
 
                 // Get identifier
-                string itemIdentifier = resultsGrid.SelectedRows[0].Cells[3].Value.ToString();
+                string itemIdentifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
 
                 // Create a filename
                 string fileName = itemIdentifier + ".zip";
 
                 // Add download to download handler
-                Uri URL = new Uri("http://archive.org/compress/" + itemIdentifier);
+                Uri URL = new Uri("http://archive.org/compress/" + Uri.EscapeDataString(itemIdentifier));
 
                 //MessageBox.Show(URL.ToString());
 
@@ -518,7 +507,7 @@ namespace SoftwareShelf_Desktop
 
         private void reviewButton_Click(object sender, EventArgs e)
         {
-            ReviewForm reviewForm = new ReviewForm(resultsGrid.SelectedRows[0].Cells[3].Value.ToString());
+            ReviewForm reviewForm = new ReviewForm(resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString());
             reviewForm.ShowDialog();
         }
     }

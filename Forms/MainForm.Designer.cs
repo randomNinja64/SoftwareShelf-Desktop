@@ -266,7 +266,6 @@
             this.downloadsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.downloadsDataGridView.Size = new System.Drawing.Size(894, 370);
             this.downloadsDataGridView.TabIndex = 0;
-            this.downloadsDataGridView.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.downloadsDataGridView_RowEnter);
             this.downloadsDataGridView.SelectionChanged += new System.EventHandler(this.downloadsDataGridView_SelectionChanged);
             // 
             // DownloadUrl

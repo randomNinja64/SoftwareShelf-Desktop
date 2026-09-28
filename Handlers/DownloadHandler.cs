@@ -148,7 +148,7 @@ namespace SoftwareShelf_Desktop
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                MessageBox.Show("Error 22: File Download Failed: " + ex + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
+                ShowDownloadFailed(ex);
                 CompleteDownloadOnUi(activeDownload);
             }
         }
@@ -156,50 +156,52 @@ namespace SoftwareShelf_Desktop
         // Function to download item
         private void downloadItem(Download downloadItem, string destination)
         {
-            // Calculate destination path
-            if (!downloadItem.downloadUrl.ToString().StartsWith("http://archive.org/compress"))
+            // Split the URL into segments
+            Uri uri = downloadItem.downloadUrl;
+            string[] segments = uri.AbsolutePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < segments.Length; i++)
             {
-                // Split the URL into segments
-                Uri uri = downloadItem.downloadUrl;
-                string[] segments = uri.AbsolutePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                // Find the index of the download identifier in the segments.
-                int identifierIndex = Array.IndexOf(segments, downloadItem.downloadIdentifier);
-
-                // If the download identifier is found, remove any segments before it.
-                if (identifierIndex >= 0)
-                {
-                    string[] tail = new string[segments.Length - identifierIndex];
-                    Array.Copy(segments, identifierIndex, tail, 0, tail.Length);
-                    segments = tail;
-                }
-                else
-                {
-                    // If not found, default to using the provided downloadIdentifier.
-                    segments = new string[] { downloadItem.downloadIdentifier };
-                }
-
-                // Build the destination folder path using all segments except the last one (assumed to be the file name).
-                if (segments.Length > 1)
-                {
-                    // Start with the first segment.
-                    string folderStructure = segments[0];
-                    // Loop through the segments, excluding the last element.
-                    for (int i = 1; i < segments.Length - 1; i++)
-                    {
-                        folderStructure = Path.Combine(folderStructure, segments[i]);
-                    }
-                    destination = Path.Combine(destination, folderStructure);
-                }
-                else
-                {
-                    // Only the download identifier is available.
-                    destination = Path.Combine(destination, segments[0]);
-                }
-
-                // Create the destination directory.
-                Directory.CreateDirectory(destination);
+                segments[i] = Uri.UnescapeDataString(segments[i]);
             }
+
+            // Find the index of the download identifier in the segments.
+            int identifierIndex = Array.IndexOf(segments, downloadItem.downloadIdentifier);
+
+            // If the download identifier is found, remove any segments before it.
+            if (identifierIndex >= 0)
+            {
+                string[] tail = new string[segments.Length - identifierIndex];
+                Array.Copy(segments, identifierIndex, tail, 0, tail.Length);
+                segments = tail;
+            }
+            else
+            {
+                // If not found, default to using the provided downloadIdentifier.
+                segments = new string[] { downloadItem.downloadIdentifier };
+            }
+
+            for (int i = 0; i < segments.Length; i++)
+            {
+                segments[i] = SanitizePathSegment(segments[i]);
+            }
+
+            // Build the destination folder path using all segments except the last one (assumed to be the file name).
+            // A compress URL has only the identifier, so the zip lands in that folder.
+            if (segments.Length > 1)
+            {
+                string folderStructure = segments[0];
+                for (int i = 1; i < segments.Length - 1; i++)
+                {
+                    folderStructure = Path.Combine(folderStructure, segments[i]);
+                }
+                destination = Path.Combine(destination, folderStructure);
+            }
+            else
+            {
+                destination = Path.Combine(destination, segments[0]);
+            }
+
+            Directory.CreateDirectory(destination);
 
             downloadItem.localPath = Path.Combine(destination, downloadItem.fileName);
 
@@ -296,7 +298,7 @@ namespace SoftwareShelf_Desktop
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                MessageBox.Show("Error 22: File Download Failed: " + ex + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
+                MessageBox.Show("Error 22: File Download Failed. Aria2 could not start: " + ex + "\n\nIf this continues, please try the ZIP option or turn Aria2 off.");
                 CompleteDownloadOnUi(downloadItem);
                 return;
             }
@@ -365,9 +367,11 @@ namespace SoftwareShelf_Desktop
                     download.downloadSpeed = speed + "/s";
                 }
 
-                if (sslFailure)
+                if (sslFailure && !download.cancelRequested)
                 {
+                    download.cancelRequested = true;
                     MessageBox.Show("Error 23: File Download Failed. It appears that Archive.org has redirected your download to an HTTPS link, which is not currently supported. Please try again later or try the ZIP option.");
+                    CancelActive(download);
                 }
             });
         }
@@ -397,7 +401,7 @@ namespace SoftwareShelf_Desktop
             // If download fails and was not canceled, alert user
             if (error != null && !cancelled)
             {
-                MessageBox.Show("Error 22: File Download Failed: " + error + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
+                ShowDownloadFailed(error);
             }
 
             if (!cancelled)
@@ -499,6 +503,20 @@ namespace SoftwareShelf_Desktop
                 {
                 }
             }
+        }
+
+        private static string SanitizePathSegment(string segment)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                segment = segment.Replace(c, '-');
+            }
+            return segment;
+        }
+
+        private void ShowDownloadFailed(Exception error)
+        {
+            MessageBox.Show("Error 22: File Download Failed: " + error + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
         }
 
         private void StopTimer()
