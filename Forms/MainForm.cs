@@ -159,11 +159,6 @@ namespace SoftwareShelf_Desktop
             showResults(ArchiveHandler.Search(searchTxtBox.Text, mediaType, creatorTxt.Text, topicTxt.Text, yearTxt.Text));
         }
 
-        private void searchTxtBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void searchTxtBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -246,15 +241,6 @@ namespace SoftwareShelf_Desktop
             }
         }
 
-        private void dlDirTxtBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void clrInactiveBtn_Click(object sender, EventArgs e)
-        {
-        }
-
         private void setDirBtn_Click(object sender, EventArgs e)
         {
             setDownloadPath();
@@ -287,10 +273,6 @@ namespace SoftwareShelf_Desktop
                 return 1;
             }
         }
-        private void searchTab_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -320,10 +302,6 @@ namespace SoftwareShelf_Desktop
         private void downloadsDataGridView_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
             cancelDlButton.Enabled = true;
-        }
-
-        private void downloadsDataGridView_RowLeave(object sender, DataGridViewCellEventArgs e)
-        {
         }
 
         private void downloadsDataGridView_SelectionChanged(object sender, EventArgs e)
@@ -356,13 +334,6 @@ namespace SoftwareShelf_Desktop
             downloadHandler.Shutdown();
         }
 
-        private void resultsGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            // Do nothing if header clicked.
-            if (e.RowIndex == -1)
-                return;
-        }
-
         private void resultsGrid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             // Do nothing if header clicked.
@@ -382,11 +353,6 @@ namespace SoftwareShelf_Desktop
             } catch {
                 MessageBox.Show("Error 31: Opening directory failed. Directory may not exist or permissions may be incorrect.");
             }
-        }
-
-        private void downloadsDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
         }
 
         private void boostChk_CheckedChanged(object sender, EventArgs e)

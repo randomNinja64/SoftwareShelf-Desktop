@@ -56,15 +56,6 @@ namespace SoftwareShelf_Desktop
             set { DownloadSpeed = value; }
         }
 
-        public Download() { 
-            this.DownloadUrl = new Uri("NULL");
-            this.DownloadProgress = 0;
-            this.DownloadIdentifier = "NULL";
-            this.FileName = "NULL";
-            this.DownloadProgress = 0;
-            this.DownloadTime = new Stopwatch();
-        }
-
         public Download(Uri downloadUrl, string identifier, string fileName)
         {
             this.DownloadUrl = downloadUrl;

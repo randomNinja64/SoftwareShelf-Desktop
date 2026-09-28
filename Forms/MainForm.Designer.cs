@@ -226,7 +226,6 @@
             this.dlDirTxtBox.ReadOnly = true;
             this.dlDirTxtBox.Size = new System.Drawing.Size(419, 20);
             this.dlDirTxtBox.TabIndex = 2;
-            this.dlDirTxtBox.TextChanged += new System.EventHandler(this.dlDirTxtBox_TextChanged);
             // 
             // setDirBtn
             // 
@@ -267,9 +266,7 @@
             this.downloadsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.downloadsDataGridView.Size = new System.Drawing.Size(894, 370);
             this.downloadsDataGridView.TabIndex = 0;
-            this.downloadsDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.downloadsDataGridView_CellContentClick);
             this.downloadsDataGridView.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.downloadsDataGridView_RowEnter);
-            this.downloadsDataGridView.RowLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.downloadsDataGridView_RowLeave);
             this.downloadsDataGridView.SelectionChanged += new System.EventHandler(this.downloadsDataGridView_SelectionChanged);
             // 
             // DownloadUrl
@@ -329,7 +326,6 @@
             this.searchTab.TabIndex = 0;
             this.searchTab.Text = "Search";
             this.searchTab.UseVisualStyleBackColor = true;
-            this.searchTab.Click += new System.EventHandler(this.searchTab_Click);
             this.searchTab.Resize += new System.EventHandler(this.searchTab_Resize);
             // 
             // topicInfoLbl
@@ -582,7 +578,6 @@
             this.resultsGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.resultsGrid.Size = new System.Drawing.Size(490, 411);
             this.resultsGrid.TabIndex = 1;
-            this.resultsGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellContentClick);
             this.resultsGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellDoubleClick);
             this.resultsGrid.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_RowEnter);
             this.resultsGrid.SelectionChanged += new System.EventHandler(this.resultsGrid_SelectionChanged);
