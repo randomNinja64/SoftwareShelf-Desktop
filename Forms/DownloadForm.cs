@@ -28,7 +28,7 @@ namespace SoftwareShelf_Desktop
         private void DownloadForm_Load(object sender, EventArgs e)
         {
             // Get available files using ArchiveHandler
-            files = ArchiveHandler.ParseAvailableFiles(ArchiveHandler.GetJsonResponse("http://archive.org/metadata/" + itemIdentifier));
+            files = ArchiveHandler.ParseAvailableFiles(ArchiveHandler.GetItemMetadata(itemIdentifier));
             if (files == null)
             {
                 MessageBox.Show("Error 41: No files found. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);

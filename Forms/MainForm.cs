@@ -168,50 +168,32 @@ namespace SoftwareShelf_Desktop
             }
         }
 
-        private void resultsGrid_RowEnter(object sender, DataGridViewCellEventArgs e)
+        private void resultsGrid_SelectionChanged(object sender, EventArgs e)
         {
-            DataGridViewRow row = resultsGrid.Rows[e.RowIndex];
+            if (resultsGrid.SelectedRows.Count == 0)
+            {
+                reviewButton.Enabled = false;
+                downloadButton.Enabled = false;
+                zipBtn.Enabled = false;
+                return;
+            }
 
-            // Set the description textbox's text to the description cell of the currently selected row
+            DataGridViewRow row = resultsGrid.SelectedRows[0];
+
             resultDescription.Text = row.Cells["description"].Value.ToString();
 
-            if (e.RowIndex != -1)
-            {
-                // Get identifier of selected item
-                string identifier = row.Cells["identifier"].Value.ToString();
+            string identifier = row.Cells["identifier"].Value.ToString();
+            resultPreview.ImageLocation = "http://archive.org/download/" + identifier + "/__ia_thumb.jpg";
+            creatorInfoLbl.Text = "Creator: " + row.Cells["creator"].Value.ToString();
+            publishedInfoLbl.Text = "Published: " + row.Cells["date"].Value.ToString();
+            topicInfoLbl.Text = "Topic: " + row.Cells["topic"].Value.ToString();
 
-                // Download thumbnail
-                resultPreview.ImageLocation = "http://archive.org/download/" + identifier + "/__ia_thumb.jpg";
+            downloadButton.Enabled = true;
+            reviewButton.Enabled = true;
 
-                // Set creator label
-                creatorInfoLbl.Text = "Creator: " + row.Cells["creator"].Value.ToString();
-
-                // Set date label
-                publishedInfoLbl.Text = "Published: " + row.Cells["date"].Value.ToString();
-
-                // Set topic label
-                topicInfoLbl.Text = "Topic: " + row.Cells["topic"].Value.ToString();
-
-                // Enable the download button
-                downloadButton.Enabled = true;
-
-                // Enable the reviews button
-                reviewButton.Enabled = true;
-
-                // Check the size of the item
-                long sizeInKiB = Convert.ToInt64(row.Cells["resultSize"].Value);
-                double sizeInGB = sizeInKiB / (1024.0 * 1024.0); // Convert KiB to GB
-
-                // Enable or disable the zip button based on the size
-                if (sizeInGB < 40)
-                {
-                    zipBtn.Enabled = true;
-                }
-                else
-                {
-                    zipBtn.Enabled = false;
-                }
-            }
+            long sizeInKiB = Convert.ToInt64(row.Cells["resultSize"].Value);
+            double sizeInGB = sizeInKiB / (1024.0 * 1024.0);
+            zipBtn.Enabled = sizeInGB < 40;
         }
 
         private void downloadButton_Click(object sender, EventArgs e)
@@ -416,22 +398,6 @@ namespace SoftwareShelf_Desktop
             }
         }
 
-        private void resultsGrid_SelectionChanged(object sender, EventArgs e)
-        {
-            // Check if any rows are selected
-            if (resultsGrid.SelectedRows.Count == 0)
-            {
-                // Disable the review button
-                reviewButton.Enabled = false;
-                
-                // Disable the download button if no rows are selected
-                downloadButton.Enabled = false;
-
-                // Disable the ZIP button
-                zipBtn.Enabled = false;
-            }
-        }
-
         private void threadsNum_ValueChanged(object sender, EventArgs e)
         {
             // Save new value to settings
@@ -439,30 +405,29 @@ namespace SoftwareShelf_Desktop
             Properties.Settings.Default.Save();
         }
 
-        private void yearTxt_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Allow control keys like Backspace
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
         private void yearTxt_TextChanged(object sender, EventArgs e)
         {
-            if (yearTxt.Text.Length > 4)
+            string digits = string.Empty;
+            foreach (char c in yearTxt.Text)
             {
-                // If the input exceeds 4 digits, truncate the text
-                yearTxt.Text = yearTxt.Text.Substring(0, 4);
-                // Move the cursor to the end of the text
-                yearTxt.SelectionStart = yearTxt.Text.Length;
+                if (char.IsDigit(c))
+                {
+                    digits += c;
+                }
             }
 
-            // Ensure the content is numeric
-            if (!System.Text.RegularExpressions.Regex.IsMatch(yearTxt.Text, "^[0-9]*$"))
+            if (digits.Length > 4)
             {
-                yearTxt.Text = "";
+                digits = digits.Substring(0, 4);
             }
+
+            if (yearTxt.Text == digits)
+            {
+                return;
+            }
+
+            yearTxt.Text = digits;
+            yearTxt.SelectionStart = yearTxt.Text.Length;
         }
 
         private void searchTab_Resize(object sender, EventArgs e)

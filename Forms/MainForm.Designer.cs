@@ -507,7 +507,6 @@
             this.yearTxt.TabIndex = 7;
             this.yearTxt.TextChanged += new System.EventHandler(this.yearTxt_TextChanged);
             this.yearTxt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchTxtBox_KeyDown);
-            this.yearTxt.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.yearTxt_KeyPress);
             // 
             // zipBtn
             // 
@@ -578,7 +577,6 @@
             this.resultsGrid.Size = new System.Drawing.Size(490, 411);
             this.resultsGrid.TabIndex = 1;
             this.resultsGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellDoubleClick);
-            this.resultsGrid.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_RowEnter);
             this.resultsGrid.SelectionChanged += new System.EventHandler(this.resultsGrid_SelectionChanged);
             this.resultsGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.resultsGrid_KeyDown);
             // 

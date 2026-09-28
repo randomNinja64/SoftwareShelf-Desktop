@@ -11,6 +11,8 @@ namespace SoftwareShelf_Desktop
 {
     internal class ArchiveHandler
     {
+        private static Dictionary<string, string> itemMetadata = new Dictionary<string, string>();
+
         // Create a struct to store items from Archive.org
         public struct ArchiveItem
         {
@@ -55,7 +57,7 @@ namespace SoftwareShelf_Desktop
         public static List<Review> GetReviews(string identifier)
         {
             // Get metadata for item
-            string metadata_json = GetJsonResponse("http://archive.org/metadata/" + identifier);
+            string metadata_json = GetItemMetadata(identifier);
 
             // Deserialize the JSON into a JObject.
             JObject metadataObj = JsonConvert.DeserializeObject(metadata_json) as JObject;
@@ -142,6 +144,7 @@ namespace SoftwareShelf_Desktop
 
         private static List<ArchiveItem> RunQuery(string query, string sort)
         {
+            itemMetadata.Clear();
             string url = "http://archive.org/advancedsearch.php?q=" + Uri.EscapeDataString(query) + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&rows=100&output=json";
             if (!string.IsNullOrEmpty(sort))
             {
@@ -158,6 +161,22 @@ namespace SoftwareShelf_Desktop
             }
 
             return ParseSearchResults(resultsJson);
+        }
+
+        internal static string GetItemMetadata(string identifier)
+        {
+            string json;
+            if (itemMetadata.TryGetValue(identifier, out json))
+            {
+                return json;
+            }
+
+            json = GetJsonResponse("http://archive.org/metadata/" + identifier);
+            if (json != null)
+            {
+                itemMetadata[identifier] = json;
+            }
+            return json;
         }
 
         internal static string GetJsonResponse(string url)
