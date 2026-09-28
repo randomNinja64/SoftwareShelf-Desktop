@@ -49,7 +49,7 @@
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>softwareshelf%281%29.ico</ApplicationIcon>
+    <ApplicationIcon>softwareshelf.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>false</SignManifests>
@@ -139,7 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="placeholder.png" />
-    <Content Include="softwareshelf%281%29.ico" />
+    <Content Include="softwareshelf.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
