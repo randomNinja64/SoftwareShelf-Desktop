@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Windows.Forms;
 namespace SoftwareShelf_Desktop
 {
@@ -10,8 +9,8 @@ namespace SoftwareShelf_Desktop
         public DownloadHandler downloadHandler;
         public Timer progressTimer;
 
-        // Store files in private variable
-        private List<string> files;
+        private List<ArchiveHandler.ArchiveFile> files;
+        private Dictionary<string, bool> checkedFiles = new Dictionary<string, bool>();
 
         public DownloadForm()
         {
@@ -27,7 +26,6 @@ namespace SoftwareShelf_Desktop
 
         private void DownloadForm_Load(object sender, EventArgs e)
         {
-            // Get available files using ArchiveHandler
             files = ArchiveHandler.ParseAvailableFiles(ArchiveHandler.GetItemMetadata(itemIdentifier));
             if (files == null)
             {
@@ -36,66 +34,84 @@ namespace SoftwareShelf_Desktop
                 return;
             }
 
-            foreach (string file in files)
+            foreach (ArchiveHandler.ArchiveFile file in files)
             {
-                filesListBox.Items.Add(file);
+                checkedFiles[file.name] = !IsUncheckedByDefault(file.name);
             }
 
-            // Blacklist specific file types: xml|sqlite|torrent
-            for (int i = 0; i < filesListBox.Items.Count; i++)
-            {
-                filesListBox.SetItemChecked(i, !IsUncheckedByDefault(filesListBox.Items[i].ToString()));
-            }
+            ShowFiles(files);
         }
 
         private void selectAllBtn_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < filesListBox.Items.Count; i++)
-            {
-                filesListBox.SetItemChecked(i, true);
-            }
+            SetVisibleChecks(true);
         }
 
         private void selectNoneBtn_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < filesListBox.Items.Count; i++)
-            {
-                filesListBox.SetItemChecked(i, false);
-            }
+            SetVisibleChecks(false);
         }
 
         private void downloadSelectedBtn_Click(object sender, EventArgs e)
         {
-            // Iterate through selected items and add them to downloads
-            foreach (string item in filesListBox.CheckedItems)
+            foreach (ArchiveHandler.ArchiveFile file in filesListBox.CheckedItems)
             {
-                // Add download to download handler
-                Uri URL = ArchiveDownloadUri(itemIdentifier, item);
-                downloadHandler.addDownload(URL, itemIdentifier, item, progressTimer);
+                Uri URL = ArchiveDownloadUri(itemIdentifier, file.name);
+                downloadHandler.addDownload(URL, itemIdentifier, file.name, progressTimer);
             }
 
-            // Close Downloads Form
             this.Close();
         }
 
         private void filterTxt_TextChanged(object sender, EventArgs e)
         {
-            // Get the filter text
-            string filter = filterTxt.Text.ToLower();
+            RememberVisibleChecks();
 
-            // Filter the items
-            List<string> filteredItems = new List<string>();
-            foreach (string item in files)
+            string filter = filterTxt.Text.ToLower();
+            List<ArchiveHandler.ArchiveFile> filteredItems = new List<ArchiveHandler.ArchiveFile>();
+            foreach (ArchiveHandler.ArchiveFile item in files)
             {
-                if (item.ToLower().Contains(filter))
+                if (item.name.ToLower().Contains(filter))
                 {
                     filteredItems.Add(item);
                 }
             }
 
-            // Update filesListBox
+            ShowFiles(filteredItems);
+        }
+
+        private void ShowFiles(List<ArchiveHandler.ArchiveFile> visible)
+        {
             filesListBox.Items.Clear();
-            filesListBox.Items.AddRange(filteredItems.ToArray());
+            foreach (ArchiveHandler.ArchiveFile file in visible)
+            {
+                int index = filesListBox.Items.Add(file);
+                bool include;
+                if (!checkedFiles.TryGetValue(file.name, out include))
+                {
+                    include = !IsUncheckedByDefault(file.name);
+                }
+                filesListBox.SetItemChecked(index, include);
+            }
+        }
+
+        private void SetVisibleChecks(bool include)
+        {
+            for (int i = 0; i < filesListBox.Items.Count; i++)
+            {
+                filesListBox.SetItemChecked(i, include);
+                ArchiveHandler.ArchiveFile file = (ArchiveHandler.ArchiveFile)filesListBox.Items[i];
+                checkedFiles[file.name] = include;
+            }
+        }
+
+        private void RememberVisibleChecks()
+        {
+            for (int i = 0; i < filesListBox.Items.Count; i++)
+            {
+                ArchiveHandler.ArchiveFile file = (ArchiveHandler.ArchiveFile)filesListBox.Items[i];
+                checkedFiles[file.name] = filesListBox.GetItemChecked(i);
+            }
         }
 
         private static Uri ArchiveDownloadUri(string identifier, string relativeFile)

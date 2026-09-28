@@ -13,6 +13,21 @@ namespace SoftwareShelf_Desktop
     {
         private static Dictionary<string, string> itemMetadata = new Dictionary<string, string>();
 
+        public struct ArchiveFile
+        {
+            public string name;
+            public long size;
+
+            public override string ToString()
+            {
+                if (size < 0)
+                {
+                    return name;
+                }
+                return name + " (" + (size / 1024) + " KiB)";
+            }
+        }
+
         // Create a struct to store items from Archive.org
         public struct ArchiveItem
         {
@@ -325,11 +340,11 @@ namespace SoftwareShelf_Desktop
             return token.ToString();
         }
 
-        internal static List<string> ParseAvailableFiles(string metadata_json)
+        internal static List<ArchiveFile> ParseAvailableFiles(string metadata_json)
         {
             // LOGGING
             Console.WriteLine("[Info] Parsing available files.");
-            var availableFiles = new List<string>();
+            List<ArchiveFile> availableFiles = new List<ArchiveFile>();
 
             try
             {
@@ -349,7 +364,15 @@ namespace SoftwareShelf_Desktop
                         continue;
                     }
 
-                    availableFiles.Add(file["name"].ToString());
+                    ArchiveFile item = new ArchiveFile();
+                    item.name = file["name"].ToString();
+                    item.size = -1;
+                    long parsedSize;
+                    if (file["size"] != null && long.TryParse(file["size"].ToString(), out parsedSize))
+                    {
+                        item.size = parsedSize;
+                    }
+                    availableFiles.Add(item);
                 }
 
                 return availableFiles;
