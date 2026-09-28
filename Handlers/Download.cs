@@ -16,6 +16,9 @@ namespace SoftwareShelf_Desktop
         // Web Client Associated With Download
         public WebClient WebClient;
 
+        // Aria2 process started for this download. Cancel kills this process only.
+        public Process aria2Process;
+
         // Create properties
         public Uri downloadUrl
         {

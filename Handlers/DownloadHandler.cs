@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace SoftwareShelf_Desktop
@@ -12,6 +11,9 @@ namespace SoftwareShelf_Desktop
     {
         public BindingList<Download> Downloads;
 
+        private Download activeDownload;
+        private Timer progressTimer;
+
         // Constructor
         public DownloadHandler()
         {
@@ -19,7 +21,7 @@ namespace SoftwareShelf_Desktop
         }
 
         // Function to Add Download
-        public void addDownload(Uri downloadUrl, string identifier, string fileName, System.Windows.Forms.Timer progressTimer)
+        public void addDownload(Uri downloadUrl, string identifier, string fileName, Timer progressTimer)
         {
             // Correct filename, removing any invalid characters for Windows, replacing them with -
             foreach (char c in Path.GetInvalidFileNameChars())
@@ -27,33 +29,149 @@ namespace SoftwareShelf_Desktop
                 fileName = fileName.Replace(c, '-');
             }
 
-            // Msgbox to show filename
-            //MessageBox.Show(downloadUrl.ToString());
-            
+            string safeName = fileName;
+            RunOnUi(delegate
+            {
+                this.progressTimer = progressTimer;
+                Downloads.Add(new Download(downloadUrl, identifier, safeName));
+                StartNext();
+            });
+        }
 
-            Downloads.Add(new Download(downloadUrl, identifier, fileName));
+        // Function to abort download
+        public void Abort(Download downloadToAbort)
+        {
+            if (downloadToAbort == null)
+            {
+                return;
+            }
 
-            // If progress timer isn't running, start it and start the first download
-            if (!progressTimer.Enabled)
+            RunOnUi(delegate { AbortOnUi(downloadToAbort); });
+        }
+
+        // Drop queued items and kill the active Aria2 process, if this queue started one.
+        public void Shutdown()
+        {
+            RunOnUi(delegate
+            {
+                Download current = activeDownload;
+                for (int i = Downloads.Count - 1; i >= 0; i--)
+                {
+                    if (Downloads[i] != current)
+                    {
+                        Downloads.RemoveAt(i);
+                    }
+                }
+
+                Process process = current == null ? null : current.aria2Process;
+                if (process == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                }
+                catch (Win32Exception)
+                {
+                }
+            });
+        }
+
+        private void AbortOnUi(Download downloadToAbort)
+        {
+            if (downloadToAbort == activeDownload)
+            {
+                CancelActive(downloadToAbort);
+            }
+            else if (Downloads.Contains(downloadToAbort))
+            {
+                Downloads.Remove(downloadToAbort);
+            }
+        }
+
+        // Cancel the transport that is actually running for this download.
+        // Completion removes it and starts the next item.
+        private void CancelActive(Download download)
+        {
+            Process process = download.aria2Process;
+            if (process != null)
+            {
+                try
+                {
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                        return;
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                }
+                catch (Win32Exception)
+                {
+                }
+            }
+
+            if (download.WebClient != null)
+            {
+                try
+                {
+                    download.WebClient.CancelAsync();
+                    return;
+                }
+                catch (InvalidOperationException)
+                {
+                }
+            }
+
+            CompleteDownloadOnUi(download);
+        }
+
+        private void StartNext()
+        {
+            if (activeDownload != null)
+            {
+                return;
+            }
+
+            if (Downloads.Count == 0)
+            {
+                StopTimer();
+                return;
+            }
+
+            activeDownload = Downloads[0];
+            if (progressTimer != null && !progressTimer.Enabled)
             {
                 progressTimer.Start();
-                downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath);
+            }
+
+            try
+            {
+                downloadItem(activeDownload, Properties.Settings.Default.DownloadPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                MessageBox.Show("Error 22: File Download Failed: " + ex + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
+                CompleteDownloadOnUi(activeDownload);
             }
         }
 
         // Function to download item
-        public void downloadItem(Download downloadItem, string destination)
+        private void downloadItem(Download downloadItem, string destination)
         {
             // Calculate destination path
             if (!downloadItem.downloadUrl.ToString().StartsWith("http://archive.org/compress"))
             {
-                /*   
-                // Download 
-                destination = Path.Combine(destination, downloadItem.downloadIdentifier);
-                // Create destination directory
-                Directory.CreateDirectory(destination);
-                // Download file*/
-
                 // Split the URL into segments
                 Uri uri = downloadItem.downloadUrl;
                 string[] segments = uri.AbsolutePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -109,33 +227,31 @@ namespace SoftwareShelf_Desktop
         }
 
         // Function to download item (non-multithreaded)
-        public void downloadItemSinglethreaded(Download downloadItem, string destination)
+        private void downloadItemSinglethreaded(Download downloadItem, string destination)
         {
             downloadItem.WebClient = new WebClient();
 
-            // Attach event handlers
-            // Add Event Handlers For Progress and Completion
-            downloadItem.WebClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(webClient_DownloadProgressChanged);
-            // Create async event handler for completion and pass current download into it 
-            downloadItem.WebClient.DownloadFileCompleted += (sender, e) =>
+            downloadItem.WebClient.DownloadProgressChanged += delegate (object sender, DownloadProgressChangedEventArgs e)
             {
-                webClient_DownloadFileCompleted(sender, e, downloadItem);
-                downloadItem.WebClient.Dispose();
+                long received = e.BytesReceived;
+                int percent = e.ProgressPercentage;
+                PostOnUi(delegate { ApplyWebClientProgress(downloadItem, received, percent); });
+            };
+            downloadItem.WebClient.DownloadFileCompleted += delegate (object sender, AsyncCompletedEventArgs e)
+            {
+                bool cancelled = e.Cancelled;
+                Exception error = e.Error;
+                PostOnUi(delegate { OnWebClientCompleted(downloadItem, cancelled, error); });
             };
 
             downloadItem.WebClient.DownloadFileAsync(downloadItem.downloadUrl, destination + "\\" + downloadItem.fileName);
-
-            // Start Stopwatch
-            downloadItem.downloadTime.Start();    
+            downloadItem.downloadTime.Start();
         }
 
         // Function to download item using chunked/multithreaded downloading
-        public void downloadItemMultithreaded(Download downloadItem, string destination, int numChunks)
+        private void downloadItemMultithreaded(Download downloadItem, string destination, int numChunks)
         {
-            string aria2cPath = "aria2c.exe";
             string downloadUrl = downloadItem.downloadUrl.ToString();
-            string fileName = downloadItem.fileName;
-            string downloadPath = destination;
 
             // If the user is trying to download a torrent file and process torrents is disabled, download the .torrent singlethreaded
             if (!Properties.Settings.Default.TorrentProcessing && downloadUrl.ToLower().EndsWith(".torrent"))
@@ -145,170 +261,134 @@ namespace SoftwareShelf_Desktop
             }
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = aria2cPath;
-            startInfo.Arguments = $"-x {numChunks} -d \"{downloadPath}\" -o \"{fileName}\" --allow-overwrite=true --seed-time=0 --check-certificate=false \"{downloadUrl}\" ";
+            startInfo.FileName = "aria2c.exe";
+            startInfo.Arguments = "-x " + numChunks + " -d \"" + destination + "\" -o \"" + downloadItem.fileName + "\" --allow-overwrite=true --seed-time=0 --check-certificate=false \"" + downloadUrl + "\" ";
             startInfo.CreateNoWindow = true;
             startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true; // Add this line to redirect the console output
+            startInfo.RedirectStandardOutput = true;
 
             Process process = new Process();
-            process.EnableRaisingEvents = true;
             process.StartInfo = startInfo;
-
-            // Event handler for when process exits
-            //process.Exited += (sender, e) => OnDownloadCompleted(downloadItem);
-
-            process.Start();
-
-            // Read the console output and write it to Console.WriteLine
-            process.OutputDataReceived += (sender, e) => updateAria2Progress(e.Data);
-            process.BeginOutputReadLine();
-            // Async event handler for when process exits
-            process.Exited += (sender, e) =>
+            process.EnableRaisingEvents = true;
+            process.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e)
             {
-                OnDownloadCompleted(downloadItem);
-                process.Dispose();
+                updateAria2Progress(downloadItem, e.Data);
             };
-        }
-
-        public void updateAria2Progress(string aria2output)
-        {
-            Console.WriteLine(aria2output);
-            // If aria2output is not null and contains "Allocating", set Downloads[0].downloadSpeed to "Preallocating"
-            if (aria2output != null && aria2output.Contains("Allocating"))
+            process.Exited += delegate
             {
-                Downloads[0].downloadSpeed = "Preallocating";
+                PostOnUi(delegate { CompleteDownloadOnUi(downloadItem); });
+            };
+
+            downloadItem.aria2Process = process;
+            try
+            {
+                process.Start();
+                process.BeginOutputReadLine();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                MessageBox.Show("Error 22: File Download Failed: " + ex + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
+                CompleteDownloadOnUi(downloadItem);
+                return;
             }
 
-            // Check if the output is not null and contains a % sign and does not contain "archive.org"
-            if (aria2output != null && aria2output.Contains("%") && !aria2output.Contains("archive.org"))
-            {
-                if (aria2output.IndexOf("%") >= 3)
-                {
-                    // The below code sets progress
-                    string progress = aria2output.Substring(aria2output.IndexOf("%") - 3, 3);
-                    string digits = string.Empty;
-                    foreach (char c in progress)
-                    {
-                        if (char.IsDigit(c))
-                        {
-                            digits += c;
-                        }
-                    }
-                    progress = digits;
-                    if (double.TryParse(progress, out double progressDouble))
-                    {
-                        try
-                        {
-                            Downloads[0].downloadProgress = progressDouble;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Download 0's info could not be set: {ex.Message}");
-                            return;
-                        }
-                    }
+            downloadItem.downloadTime.Start();
+        }
 
-                    // The below code sets speed
-                    // Check if aria2output contains the string "DL:" and "ETA:"
-                    if (aria2output.Contains("DL:") && aria2output.Contains("ETA:"))
+        private void updateAria2Progress(Download download, string aria2output)
+        {
+            Console.WriteLine(aria2output);
+            if (aria2output == null)
+            {
+                return;
+            }
+
+            bool allocating = aria2output.Contains("Allocating");
+            bool sslFailure = aria2output.Contains("SSL/TLS handshake failure");
+            bool hasProgress = false;
+            double progressValue = 0;
+            string speed = null;
+
+            // Check if the output contains a % sign and does not contain "archive.org"
+            if (aria2output.Contains("%") && !aria2output.Contains("archive.org") && aria2output.IndexOf("%") >= 3)
+            {
+                string progress = aria2output.Substring(aria2output.IndexOf("%") - 3, 3);
+                string digits = string.Empty;
+                foreach (char c in progress)
+                {
+                    if (char.IsDigit(c))
                     {
-                        // Get the string between "DL:" and "ETA:"
-                        string speed = aria2output.Substring(aria2output.IndexOf("DL:") + 3, aria2output.IndexOf("ETA:") - aria2output.IndexOf("DL:") - 3);
-                        // Remove trailing whitespace
-                        speed = speed.Trim();
-                        // Set download speed to the string between "DL:" and "ETA:" adding a "/s" to the end
-                        Downloads[0].downloadSpeed = speed + "/s";
+                        digits += c;
                     }
+                }
+
+                if (double.TryParse(digits, out progressValue))
+                {
+                    hasProgress = true;
+                }
+
+                if (aria2output.Contains("DL:") && aria2output.Contains("ETA:"))
+                {
+                    speed = aria2output.Substring(aria2output.IndexOf("DL:") + 3, aria2output.IndexOf("ETA:") - aria2output.IndexOf("DL:") - 3);
+                    speed = speed.Trim();
                 }
             }
 
-            // Error handling for when Archive.org redirects to HTTPS downloads
-            if (aria2output != null && aria2output.Contains("SSL/TLS handshake failure"))
+            PostOnUi(delegate
             {
-                MessageBox.Show("Error 23: File Download Failed. It appears that Archive.org has redirected your download to an HTTPS link, which is not currently supported. Please try again later or try the ZIP option.");
-            }
-        }
-
-        // Download Completed for chunked/multithreaded downloads
-        private void OnDownloadCompleted(Download currentDownload)
-        {
-            // Messagebox to show download count
-            //MessageBox.Show("Downloads remaining in queue: " + Downloads.Count);
-
-            // Write line to show aria2c has completed
-            Console.WriteLine("aria2c has completed");
-
-            currentDownload.downloadTime.Stop();
-            Console.WriteLine($"Download completed in {currentDownload.downloadTime.Elapsed.TotalSeconds} seconds");
-
-            //Downloads.RemoveAt(0);
-            if (Downloads.Count > 0)
-            {
-                // Messagebox, attempting to remove a download
-                //MessageBox.Show("Attempting to remove a download");
-
-                // Workaround for when form is closing
-                // If no forms are open, return
-                if (Application.OpenForms.Count == 0)
+                if (download != activeDownload)
                 {
                     return;
                 }
 
-                // Check if the current thread is the UI thread
-                if (Application.OpenForms[0].InvokeRequired)
+                if (allocating)
                 {
-                    // Use BeginInvoke to execute the downloadItem method on the UI thread
-                    Application.OpenForms[0].BeginInvoke(new MethodInvoker(delegate { Downloads.RemoveAt(0); }));
-
-                    // Wait for the above line to finish
-                    Thread.Sleep(100);
-
-                    // If there are still more downloads in the queue, start the next one
-                    if (Downloads.Count > 0)
-                    {
-                        Application.OpenForms[0].BeginInvoke(new MethodInvoker(delegate { downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath); }));
-                    }
-
-                    // If there are no more downloads in the queue, stop the timer
-                    else
-                    {
-                        MainForm.frmObj.progressTimer.Stop();
-                    }
+                    download.downloadSpeed = "Preallocating";
                 }
-                else
+
+                if (hasProgress)
                 {
-                    Downloads.RemoveAt(0); 
-                    // If there are still more downloads in the queue, start the next one
-                    if (Downloads.Count > 0)
-                    {
-                        downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath);
-                    }
+                    download.downloadProgress = progressValue;
                 }
-            }
-            else
+
+                if (speed != null)
+                {
+                    download.downloadSpeed = speed + "/s";
+                }
+
+                if (sslFailure)
+                {
+                    MessageBox.Show("Error 23: File Download Failed. It appears that Archive.org has redirected your download to an HTTPS link, which is not currently supported. Please try again later or try the ZIP option.");
+                }
+            });
+        }
+
+        private void ApplyWebClientProgress(Download download, long bytesReceived, int progressPercentage)
+        {
+            if (download != activeDownload)
             {
-                // Stop the timer
-                MainForm.frmObj.progressTimer.Stop();
+                return;
+            }
+
+            download.downloadProgress = progressPercentage;
+            double seconds = download.downloadTime.Elapsed.TotalSeconds;
+            if (seconds > 0)
+            {
+                download.downloadSpeed = (bytesReceived / 1024d / seconds).ToString("0.00") + " KB/s";
             }
         }
 
-        // The event that will fire whenever the progress of the WebClient is changed
-        private void webClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        private void OnWebClientCompleted(Download currentDownload, bool cancelled, Exception error)
         {
-            Downloads[0].downloadProgress = e.ProgressPercentage;
+            if (currentDownload != activeDownload)
+            {
+                return;
+            }
 
-            // Calculate download speed
-            Downloads[0].downloadSpeed = (e.BytesReceived / 1024d / Downloads[0].downloadTime.Elapsed.TotalSeconds).ToString("0.00") + " KB/s";
-        }
-
-        // The event that will fire whenever the progress of the WebClient is completed
-        private void webClient_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e, Download currentDownload)
-        {
             // Check if download was canceled, delete the file if it isn't in use.
-            if (e.Cancelled)
+            if (cancelled)
             {
-                // Check if file is in use and delete if not
                 string fileToDelete = Properties.Settings.Default.DownloadPath + "\\" + currentDownload.downloadIdentifier + "\\" + currentDownload.fileName;
                 FileInfo file = new FileInfo(fileToDelete);
 
@@ -322,66 +402,150 @@ namespace SoftwareShelf_Desktop
                 }
                 catch (IOException)
                 {
-                    // File locked, show Message stating file could not be deleted.
                     MessageBox.Show("Error 21: File In Use");
                 }
             }
 
             // If download fails and was not canceled, alert user
-            if (e.Error != null && !e.Cancelled)
+            if (error != null && !cancelled)
             {
-                MessageBox.Show("Error 22: File Download Failed: " + e.Error.ToString() + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
+                MessageBox.Show("Error 22: File Download Failed: " + error + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
             }
 
-            // Set Progress to 100%
-            Downloads[0].downloadProgress = 100;
-            Downloads.RemoveAt(0);
+            if (!cancelled)
+            {
+                currentDownload.downloadProgress = 100;
+            }
 
-            // Check if there are more in the queue and start the next item
+            CompleteDownloadOnUi(currentDownload);
+        }
+
+        private void CompleteDownloadOnUi(Download download)
+        {
+            if (download != activeDownload)
+            {
+                return;
+            }
+
+            if (download.downloadTime.IsRunning)
+            {
+                download.downloadTime.Stop();
+            }
+
+            Console.WriteLine("Download completed in " + download.downloadTime.Elapsed.TotalSeconds + " seconds");
+
+            // Clear the active slot before Remove. ListChanged can re-enter, and a
+            // second finish must see that this download is no longer active.
+            activeDownload = null;
+
+            Downloads.Remove(download);
+
+            ReleaseDownload(download);
+
+            if (Application.OpenForms.Count == 0)
+            {
+                StopTimer();
+                return;
+            }
+
             if (Downloads.Count > 0)
             {
-                // Check if the current thread is the UI thread
-                if (Application.OpenForms[0].InvokeRequired)
-                {
-                    // Use BeginInvoke to execute the downloadItem method on the UI thread
-                    Application.OpenForms[0].BeginInvoke(new MethodInvoker(delegate { downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath); }));
-                }
-                else
-                {
-                    downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath);
-                }
+                StartNext();
             }
             else
             {
-                // Stop the timer
-                MainForm.frmObj.progressTimer.Stop();
+                StopTimer();
             }
         }
 
-        // Function to abort download
-        public void Abort(Download downloadToAbort)
+        private void ReleaseDownload(Download download)
         {
-            // If downloadToAbort is the first item in the queue, abort it and remove it from the queue
-            if (Downloads[0] == downloadToAbort)
+            WebClient client = download.WebClient;
+            download.WebClient = null;
+            if (client != null)
             {
-                if (Properties.Settings.Default.AriaMode == true)
+                try
                 {
-                    // Kill running aria2c process
-                    Process[] aria2cProcesses = Process.GetProcessesByName("aria2c");
-                    foreach (Process process in aria2cProcesses)
-                    {
-                        process.Kill();
-                    }
+                    client.Dispose();
                 }
-                else
+                catch (Exception)
                 {
-                    downloadToAbort.WebClient.CancelAsync();
+                }
+            }
+
+            Process process = download.aria2Process;
+            download.aria2Process = null;
+            if (process != null)
+            {
+                try
+                {
+                    process.Dispose();
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
+
+        private void StopTimer()
+        {
+            if (progressTimer != null && progressTimer.Enabled)
+            {
+                progressTimer.Stop();
+            }
+        }
+
+        private void RunOnUi(MethodInvoker action)
+        {
+            Form form = MainForm.frmObj;
+            if (form == null || form.IsDisposed || !form.IsHandleCreated)
+            {
+                return;
+            }
+
+            if (form.InvokeRequired)
+            {
+                try
+                {
+                    form.Invoke(action);
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+                catch (InvalidOperationException)
+                {
                 }
             }
             else
             {
-                // Remove download from queue
-                Downloads.Remove(downloadToAbort);
+                action();
+            }
+        }
+
+        private void PostOnUi(MethodInvoker action)
+        {
+            Form form = MainForm.frmObj;
+            if (form == null || form.IsDisposed || !form.IsHandleCreated)
+            {
+                return;
+            }
+
+            if (form.InvokeRequired)
+            {
+                try
+                {
+                    form.BeginInvoke(action);
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+                catch (InvalidOperationException)
+                {
+                }
+            }
+            else
+            {
+                action();
             }
         }
     }

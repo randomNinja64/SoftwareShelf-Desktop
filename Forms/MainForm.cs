@@ -354,12 +354,8 @@ namespace SoftwareShelf_Desktop
                 }
             }
 
-            // Kill aria2c processes
-            Process[] aria2cProcesses = Process.GetProcessesByName("aria2c");
-            foreach (Process aria2cProcess in aria2cProcesses)
-            {
-                aria2cProcess.Kill();
-            }
+            // Drop the queue and kill the Aria2 process this download started.
+            downloadHandler.Shutdown();
         }
 
         private void resultsGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
