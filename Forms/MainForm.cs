@@ -183,6 +183,7 @@ namespace SoftwareShelf_Desktop
             resultDescription.Text = row.Cells["description"].Value.ToString();
 
             string identifier = row.Cells["identifier"].Value.ToString();
+            resultPreview.CancelAsync();
             resultPreview.ImageLocation = "http://archive.org/download/" + identifier + "/__ia_thumb.jpg";
             creatorInfoLbl.Text = "Creator: " + row.Cells["creator"].Value.ToString();
             publishedInfoLbl.Text = "Published: " + row.Cells["date"].Value.ToString();
