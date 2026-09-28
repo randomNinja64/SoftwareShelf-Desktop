@@ -43,7 +43,7 @@ The software can be built by building the solution in Visual Studio or by runnin
 
 ## Credits
 
-
+- Aria2 builds are provided by [dmesg00](https://github.com/dmesg00/aria2-static-builds)
 
 ## License
 
