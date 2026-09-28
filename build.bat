@@ -3,7 +3,7 @@ setlocal EnableExtensions
 set ROOT=%~dp0
 set OUT=%ROOT%SoftwareShelf Desktop
 set SETUP=%ROOT%SoftwareShelf Desktop Setup.exe
-set NSI=%ROOT%..\..\..\Documents\NSIS\SoftwareShelfDesktop\InstallScript.nsi
+set NSI=%ROOT%InstallScript.nsi
 
 :: Find MSBuild
 for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) do set MSBUILD=%%i
