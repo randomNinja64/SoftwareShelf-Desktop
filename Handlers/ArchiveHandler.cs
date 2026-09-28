@@ -282,22 +282,7 @@ namespace SoftwareShelf_Desktop
                         result.avgRating = 0;
                     }
 
-                    // Set creator
-                    if (item["creator"] != null)
-                    {
-                        try
-                        {
-                            result.creator = item["creator"][0].ToString();
-                        }
-                        catch
-                        {
-                            result.creator = item["creator"].ToString();
-                        }
-                    }
-                    else
-                    {
-                        result.creator = "";
-                    }
+                    result.creator = FirstValue(item["creator"]);
 
                     // Set date
                     if (item["date"] != null)
@@ -311,22 +296,7 @@ namespace SoftwareShelf_Desktop
                         result.date = "";
                     }
 
-                    // Set topic
-                    if (item["subject"] != null)
-                    {
-                        try
-                        {
-                            result.topic = item["subject"][0].ToString();
-                        }
-                        catch
-                        {
-                            result.topic = item["subject"].ToString();
-                        }
-                    }
-                    else
-                    {
-                        result.topic = "";
-                    }
+                    result.topic = FirstValue(item["subject"]);
 
                     results.Add(result);
                 }
@@ -337,6 +307,26 @@ namespace SoftwareShelf_Desktop
             }
 
             return results;
+        }
+
+        private static string FirstValue(JToken token)
+        {
+            if (token == null)
+            {
+                return "";
+            }
+
+            JArray values = token as JArray;
+            if (values != null)
+            {
+                if (values.Count == 0)
+                {
+                    return "";
+                }
+                return values[0].ToString();
+            }
+
+            return token.ToString();
         }
 
         private static List<string> ParseAvailableFiles(string metadata_json)

@@ -40,7 +40,7 @@ namespace SoftwareShelf_Desktop
             }
 
             // Aria2 does not run below Windows XP. A copied settings file must not turn it back on.
-            if (Environment.OSVersion.Version < new Version(5, 1))
+            if (!supportsAria2())
             {
                 Properties.Settings.Default.AriaMode = false;
             }
@@ -64,7 +64,7 @@ namespace SoftwareShelf_Desktop
             // Set the Data Source of the Download Manager to the Binding Source
             downloadsDataGridView.DataSource = downloadBindingSource;
 
-            if (Environment.OSVersion.Version < new Version(5, 1))
+            if (!supportsAria2())
             {
                 boostChk.Visible = false;
                 torrentChk.Visible = false;
@@ -94,6 +94,11 @@ namespace SoftwareShelf_Desktop
             // Set type drop down
             typeDropDown.SelectedIndex = 5;
 
+        }
+
+        private static bool supportsAria2()
+        {
+            return Environment.OSVersion.Version >= new Version(5, 1);
         }
 
         private string getMediaType(string mediaTypeIn)
@@ -134,31 +139,24 @@ namespace SoftwareShelf_Desktop
             resultPreview.Image = SoftwareShelf_Desktop.Properties.Resources.placeholder;
         }
 
-        private void searchBtn_Click(object sender, EventArgs e)
+        private void showResults(List<ArchiveHandler.ArchiveItem> results)
         {
-            // Calculate internal type for archive handler
-            string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
-
-            // Clear residual info
             clearShownItems();
-
-            // Perform Search With ArchiveHandler
-            List<ArchiveHandler.ArchiveItem> results = ArchiveHandler.Search(searchTxtBox.Text, mediaType, creatorTxt.Text, topicTxt.Text, yearTxt.Text);
-
-            // If results is null, break
             if (results == null)
             {
                 return;
             }
 
-            // Add results to resultsGrid if results is not empty
-            if (results.Count > 0)
+            foreach (ArchiveHandler.ArchiveItem result in results)
             {
-                foreach (ArchiveHandler.ArchiveItem result in results)
-                {
-                    resultsGrid.Rows.Add(result.title, result.avgRating.ToString(), result.size, result.identifier, result.description, result.downloads, result.creator, result.date, result.topic);
-                }
+                resultsGrid.Rows.Add(result.title, result.avgRating.ToString(), result.size, result.identifier, result.description, result.downloads, result.creator, result.date, result.topic);
             }
+        }
+
+        private void searchBtn_Click(object sender, EventArgs e)
+        {
+            string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
+            showResults(ArchiveHandler.Search(searchTxtBox.Text, mediaType, creatorTxt.Text, topicTxt.Text, yearTxt.Text));
         }
 
         private void searchTxtBox_TextChanged(object sender, EventArgs e)
@@ -393,7 +391,7 @@ namespace SoftwareShelf_Desktop
 
         private void boostChk_CheckedChanged(object sender, EventArgs e)
         {
-            if (Environment.OSVersion.Version < new Version(5, 1))
+            if (!supportsAria2())
             {
                 Properties.Settings.Default.AriaMode = false;
                 Properties.Settings.Default.Save();
@@ -524,29 +522,8 @@ namespace SoftwareShelf_Desktop
 
         private void latestBtn_Click(object sender, EventArgs e)
         {
-            // Calculate internal type for archive handler
             string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
-
-            // Clear residual info
-            clearShownItems();
-
-            // Perform Search With ArchiveHandler
-            List<ArchiveHandler.ArchiveItem> items = ArchiveHandler.GetLatestItems(mediaType);
-
-            // If results is null, break
-            if (items == null)
-            {
-                return;
-            }
-
-            // Add items to resultsGrid if items is not empty
-            if (items.Count > 0)
-            {
-                foreach (ArchiveHandler.ArchiveItem result in items)
-                {
-                    resultsGrid.Rows.Add(result.title, result.avgRating.ToString(), result.size, result.identifier, result.description, result.downloads, result.creator, result.date, result.topic);
-                }
-            }
+            showResults(ArchiveHandler.GetLatestItems(mediaType));
         }
 
         private void resultPreview_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
