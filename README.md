@@ -39,6 +39,7 @@ The software can be built by building the solution in Visual Studio or by runnin
     - **Threads** -  number of threads for multithreaded downloads
   - **Open Downloads** - Opens the downloads folder in Windows Explorer
   - **Browse** - Sets the downloads folder (also set on first launch)
+  - **Cancel** - Cancels the selected download
 
 ## Credits
 
