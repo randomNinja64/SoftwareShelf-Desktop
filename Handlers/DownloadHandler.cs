@@ -101,6 +101,8 @@ namespace SoftwareShelf_Desktop
         // Completion removes it and starts the next item.
         private void CancelActive(Download download)
         {
+            download.cancelRequested = true;
+
             Process process = download.aria2Process;
             if (process != null)
             {
@@ -214,6 +216,8 @@ namespace SoftwareShelf_Desktop
                 Directory.CreateDirectory(destination);
             }
 
+            downloadItem.localPath = Path.Combine(destination, downloadItem.fileName);
+
             // If Aria2 is disabled, use standard procedures
             if (!Properties.Settings.Default.AriaMode)
             {
@@ -244,7 +248,7 @@ namespace SoftwareShelf_Desktop
                 PostOnUi(delegate { OnWebClientCompleted(downloadItem, cancelled, error); });
             };
 
-            downloadItem.WebClient.DownloadFileAsync(downloadItem.downloadUrl, destination + "\\" + downloadItem.fileName);
+            downloadItem.WebClient.DownloadFileAsync(downloadItem.downloadUrl, downloadItem.localPath);
             downloadItem.downloadTime.Start();
         }
 
@@ -386,26 +390,6 @@ namespace SoftwareShelf_Desktop
                 return;
             }
 
-            // Check if download was canceled, delete the file if it isn't in use.
-            if (cancelled)
-            {
-                string fileToDelete = Properties.Settings.Default.DownloadPath + "\\" + currentDownload.downloadIdentifier + "\\" + currentDownload.fileName;
-                FileInfo file = new FileInfo(fileToDelete);
-
-                try
-                {
-                    using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
-                    {
-                        stream.Close();
-                    }
-                    File.Delete(fileToDelete);
-                }
-                catch (IOException)
-                {
-                    MessageBox.Show("Error 21: File In Use");
-                }
-            }
-
             // If download fails and was not canceled, alert user
             if (error != null && !cancelled)
             {
@@ -425,6 +409,11 @@ namespace SoftwareShelf_Desktop
             if (download != activeDownload)
             {
                 return;
+            }
+
+            if (download.cancelRequested)
+            {
+                DeleteCanceledFile(download);
             }
 
             if (download.downloadTime.IsRunning)
@@ -455,6 +444,27 @@ namespace SoftwareShelf_Desktop
             else
             {
                 StopTimer();
+            }
+        }
+
+        private void DeleteCanceledFile(Download download)
+        {
+            if (string.IsNullOrEmpty(download.localPath) || !File.Exists(download.localPath))
+            {
+                return;
+            }
+
+            try
+            {
+                using (FileStream stream = new FileStream(download.localPath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+                File.Delete(download.localPath);
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("Error 21: File In Use");
             }
         }
 

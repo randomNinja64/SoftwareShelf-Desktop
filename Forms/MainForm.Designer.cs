@@ -47,12 +47,8 @@
             this.DownloadUrl = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Speed = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.downloadIdentifier = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.fileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Running = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.DownloadProgress = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DownloadedBytes = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.downloadTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.multiThreadBytesDownloaded = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.searchTab = new System.Windows.Forms.TabPage();
             this.topicInfoLbl = new System.Windows.Forms.Label();
             this.publishedInfoLbl = new System.Windows.Forms.Label();
@@ -256,16 +252,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.downloadsDataGridView.BackgroundColor = System.Drawing.SystemColors.Control;
             this.downloadsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.downloadsDataGridView.AutoGenerateColumns = false;
             this.downloadsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.DownloadUrl,
             this.Speed,
             this.downloadIdentifier,
-            this.fileName,
-            this.Running,
             this.DownloadProgress,
-            this.DownloadedBytes,
-            this.downloadTime,
-            this.multiThreadBytesDownloaded});
+            this.downloadTime});
             this.downloadsDataGridView.Location = new System.Drawing.Point(6, 7);
             this.downloadsDataGridView.MultiSelect = false;
             this.downloadsDataGridView.Name = "downloadsDataGridView";
@@ -282,7 +275,7 @@
             // DownloadUrl
             // 
             this.DownloadUrl.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.DownloadUrl.DataPropertyName = "DownloadUrl";
+            this.DownloadUrl.DataPropertyName = "fileName";
             this.DownloadUrl.HeaderText = "File Name";
             this.DownloadUrl.Name = "DownloadUrl";
             this.DownloadUrl.ReadOnly = true;
@@ -302,36 +295,12 @@
             this.downloadIdentifier.ReadOnly = true;
             this.downloadIdentifier.Visible = false;
             // 
-            // fileName
-            // 
-            this.fileName.DataPropertyName = "fileName";
-            this.fileName.HeaderText = "fileName";
-            this.fileName.Name = "fileName";
-            this.fileName.ReadOnly = true;
-            this.fileName.Visible = false;
-            // 
-            // Running
-            // 
-            this.Running.DataPropertyName = "Running";
-            this.Running.HeaderText = "Running";
-            this.Running.Name = "Running";
-            this.Running.ReadOnly = true;
-            this.Running.Visible = false;
-            // 
             // DownloadProgress
             // 
             this.DownloadProgress.DataPropertyName = "DownloadProgress";
             this.DownloadProgress.HeaderText = "Progress";
             this.DownloadProgress.Name = "DownloadProgress";
             this.DownloadProgress.ReadOnly = true;
-            // 
-            // DownloadedBytes
-            // 
-            this.DownloadedBytes.DataPropertyName = "downloadedBytes";
-            this.DownloadedBytes.HeaderText = "DownloadedBytes";
-            this.DownloadedBytes.Name = "DownloadedBytes";
-            this.DownloadedBytes.ReadOnly = true;
-            this.DownloadedBytes.Visible = false;
             // 
             // downloadTime
             // 
@@ -340,14 +309,6 @@
             this.downloadTime.Name = "downloadTime";
             this.downloadTime.ReadOnly = true;
             this.downloadTime.Visible = false;
-            // 
-            // multiThreadBytesDownloaded
-            // 
-            this.multiThreadBytesDownloaded.DataPropertyName = "multiThreadBytesDownloaded";
-            this.multiThreadBytesDownloaded.HeaderText = "multiThreadBytesDownloaded";
-            this.multiThreadBytesDownloaded.Name = "multiThreadBytesDownloaded";
-            this.multiThreadBytesDownloaded.ReadOnly = true;
-            this.multiThreadBytesDownloaded.Visible = false;
             // 
             // searchTab
             // 
@@ -774,12 +735,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn DownloadUrl;
         private System.Windows.Forms.DataGridViewTextBoxColumn Speed;
         private System.Windows.Forms.DataGridViewTextBoxColumn downloadIdentifier;
-        private System.Windows.Forms.DataGridViewTextBoxColumn fileName;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Running;
         private System.Windows.Forms.DataGridViewTextBoxColumn DownloadProgress;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DownloadedBytes;
         private System.Windows.Forms.DataGridViewTextBoxColumn downloadTime;
-        private System.Windows.Forms.DataGridViewTextBoxColumn multiThreadBytesDownloaded;
         private System.Windows.Forms.TabPage searchTab;
         private System.Windows.Forms.Panel searchPanel;
         private System.Windows.Forms.TextBox topicTxt;

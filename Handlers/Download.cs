@@ -19,6 +19,10 @@ namespace SoftwareShelf_Desktop
         // Aria2 process started for this download. Cancel kills this process only.
         public Process aria2Process;
 
+        // Full path passed to WebClient or Aria2. Cancel deletes this file.
+        public string localPath;
+        public bool cancelRequested;
+
         // Create properties
         public Uri downloadUrl
         {
