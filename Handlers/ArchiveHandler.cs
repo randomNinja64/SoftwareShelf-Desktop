@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
-using System.Security.Principal;
+using System.Text;
 using System.Windows.Forms;
 
 namespace SoftwareShelf_Desktop
@@ -28,77 +28,28 @@ namespace SoftwareShelf_Desktop
         // Function to perform searches on Archive.org
         public static List<ArchiveItem> Search(string query, string mediaType = "", string creatorName = "", string topicName = "", string yearText = "")
         {
-            //If query is blank, error out
-            if (query == "" && creatorName == "" && topicName == "" && yearText == "")
+            query = (query ?? "").Trim();
+            mediaType = (mediaType ?? "").Trim();
+            creatorName = (creatorName ?? "").Trim();
+            topicName = (topicName ?? "").Trim();
+            yearText = (yearText ?? "").Trim();
+
+            if (query.Length == 0 && creatorName.Length == 0 && topicName.Length == 0 && yearText.Length == 0)
             {
                 MessageBox.Show("Error 02: Search queries cannot be blank.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
 
-            // Build the Query
-            query = GetQuery(query, creatorName, topicName, yearText);
-            string additionalQuery = BuildAdditionalQuery(creatorName, topicName, yearText);
-
-            // Check if mediaType is not empty or blank
-            if (!string.IsNullOrEmpty(mediaType))
-            {
-                // Set MediaType
-                mediaType = "AND+mediatype:(" + mediaType + ")";
-            }
-
-            // Base URL for API
-            string search_url = "http://archive.org/advancedsearch.php?q=(" + query + ")+" + mediaType + additionalQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&rows=100&output=json";
-
-            //MessageBox.Show(search_url);
-            Console.WriteLine("[Info] Searching:" + search_url);
-
-            string results_json = GetJsonResponse(search_url);
-
-            if (string.IsNullOrEmpty(results_json))
-            {
-                MessageBox.Show("Error 01: Error retrieving results. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-
-            return ParseSearchResults(results_json);
+            return RunQuery(BuildSearchQuery(query, mediaType, creatorName, topicName, yearText), "");
         }
 
-        public static List<ArchiveItem> GetLatestItems (string mediaType = "")
+        public static List<ArchiveItem> GetLatestItems(string mediaType = "")
         {
-            // Logging
             Console.WriteLine("[Info] Grabbing latest items for selected type.");
 
-            // Hotfix for Latest not working
-            string mediaTypeQuery = "";
-
-            // Check if mediaType is not empty or blank
-            if (!string.IsNullOrEmpty(mediaType))
-            {
-                // Set MediaType
-                mediaTypeQuery = "AND+mediatype:(" + mediaType + ")";
-            }
-
-            // Hotfix for Latest not working
-            if (mediaType == "")
-            {
-                mediaType = "all";
-            }
-
-            // Query URL for latest items
-            string latest_url = "http://archive.org/advancedsearch.php?q=\"" + mediaType + "\"+" + mediaTypeQuery + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&sort[]=addeddate+desc&rows=100&output=json";
-
-            Console.WriteLine("[Info] Searching:" + latest_url);
-
-            // Get JSON from API
-            string results_json = GetJsonResponse(latest_url);
-
-            if (string.IsNullOrEmpty(results_json))
-            {
-                MessageBox.Show("Error 01: Error retrieving results. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-
-            return ParseSearchResults(results_json);
+            mediaType = (mediaType ?? "").Trim();
+            string query = string.IsNullOrEmpty(mediaType) ? "mediatype:*" : "mediatype:(" + mediaType + ")";
+            return RunQuery(query, "addeddate+desc");
         }
 
         // Function to get available files for an identifier on Archive.org
@@ -162,52 +113,72 @@ namespace SoftwareShelf_Desktop
             return GetJsonResponse("http://archive.org/metadata/" + identifier);
         }
 
-        private static string BuildAdditionalQuery(string creatorName, string topicName, string yearText)
+        private static string BuildSearchQuery(string query, string mediaType, string creatorName, string topicName, string yearText)
         {
-            // LOGGING
-            Console.WriteLine("[Info] Building additional query.");
+            Console.WriteLine("[Info] Building search query.");
 
-            string additionalQuery = "";
-
-            if (!string.IsNullOrEmpty(creatorName))
+            List<string> clauses = new List<string>();
+            if (query.Length > 0)
             {
-                additionalQuery += "+AND+creator:(" + creatorName + ")";
+                clauses.Add("(" + EscapeLucene(query) + ")");
+            }
+            if (mediaType.Length > 0)
+            {
+                clauses.Add("mediatype:(" + mediaType + ")");
+            }
+            if (creatorName.Length > 0)
+            {
+                clauses.Add("creator:(" + EscapeLucene(creatorName) + ")");
+            }
+            if (topicName.Length > 0)
+            {
+                clauses.Add("subject:(" + EscapeLucene(topicName) + ")");
+            }
+            if (yearText.Length > 0)
+            {
+                clauses.Add("year:(" + EscapeLucene(yearText) + ")");
             }
 
-            if (!string.IsNullOrEmpty(topicName))
+            string combined = clauses[0];
+            for (int i = 1; i < clauses.Count; i++)
             {
-                additionalQuery += "+AND+subject:(" + topicName + ")";
+                combined += " AND " + clauses[i];
             }
-
-            if (!string.IsNullOrEmpty(yearText))
-            {
-                additionalQuery += "+AND+year:(" + yearText + ")";
-            }
-
-            return additionalQuery;
+            return combined;
         }
 
-        private static string GetQuery(string query, string creatorName, string topicName, string yearText)
+        private static string EscapeLucene(string value)
         {
-            // LOGGING
-            Console.WriteLine("[Info] Grabbing query.");
-
-            if (string.IsNullOrEmpty(query))
+            StringBuilder escaped = new StringBuilder();
+            foreach (char c in value)
             {
-                if (!string.IsNullOrEmpty(yearText))
+                if ("\\+-&|!(){}[]^\"~*?:/".IndexOf(c) >= 0)
                 {
-                    return yearText;
+                    escaped.Append('\\');
                 }
-                if (!string.IsNullOrEmpty(creatorName))
-                {
-                    return creatorName;
-                }
-                if (!string.IsNullOrEmpty(topicName))
-                {
-                    return topicName;
-                }
+                escaped.Append(c);
             }
-            return query;
+            return escaped.ToString();
+        }
+
+        private static List<ArchiveItem> RunQuery(string query, string sort)
+        {
+            string url = "http://archive.org/advancedsearch.php?q=" + Uri.EscapeDataString(query) + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&rows=100&output=json";
+            if (!string.IsNullOrEmpty(sort))
+            {
+                url += "&sort[]=" + sort;
+            }
+
+            Console.WriteLine("[Info] Searching:" + url);
+
+            string resultsJson = GetJsonResponse(url);
+            if (resultsJson == null)
+            {
+                MessageBox.Show("Error 01: Error retrieving results. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            return ParseSearchResults(resultsJson);
         }
 
         private static string GetJsonResponse(string url)
@@ -231,18 +202,36 @@ namespace SoftwareShelf_Desktop
 
         private static List<ArchiveItem> ParseSearchResults(string resultsJson)
         {
-            // LOGGING
             Console.WriteLine("[Info] Parsing results.");
 
-            List<ArchiveItem> results = new List<ArchiveItem>();
-
+            JArray results_array;
             try
             {
-                // Try to parse JSON response into JSON object
                 JObject results_obj = JObject.Parse(resultsJson);
-                JArray results_array = (JArray)results_obj["response"]["docs"];
+                results_array = (JArray)results_obj["response"]["docs"];
+            }
+            catch
+            {
+                MessageBox.Show("Error 03: The search response could not be read.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
 
-                foreach (var item in results_array)
+            if (results_array == null)
+            {
+                MessageBox.Show("Error 03: The search response could not be read.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            if (results_array.Count == 0)
+            {
+                MessageBox.Show("No results found.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return new List<ArchiveItem>();
+            }
+
+            List<ArchiveItem> results = new List<ArchiveItem>();
+            foreach (var item in results_array)
+            {
+                try
                 {
                     // Skip items that are access restricted
                     if (item["access-restricted-item"] != null && (bool)item["access-restricted-item"])
@@ -341,14 +330,13 @@ namespace SoftwareShelf_Desktop
 
                     results.Add(result);
                 }
+                catch
+                {
+                    continue;
+                }
+            }
 
-                return results;
-            }
-            catch
-            {
-                MessageBox.Show("Error 03: No results found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
+            return results;
         }
 
         private static List<string> ParseAvailableFiles(string metadata_json)
