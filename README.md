@@ -16,7 +16,7 @@ SoftwareShelf Desktop is a desktop application designed to search and download f
 
 ## Building
 
-The software can be built by building the solution in Visual Studio or by running `build.bat`. Builds packaged via build.bat will automatically package Aria2 if `aria2c.exe` is present in the `deps` folder). Additionally, if NSIS is available, an installer will be built.
+The software can be built by building the solution in Visual Studio or by running `build.bat`. Builds packaged via build.bat will automatically package Aria2 if `aria2c.exe` is present in the `deps` folder) and will copy all contents of `THIRD_PARTY_LICENSES` into the output directory. Additionally, if NSIS is available, an installer will be built.
 
 ## Usage
 
