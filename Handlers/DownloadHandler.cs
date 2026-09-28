@@ -49,7 +49,7 @@ namespace SoftwareShelf_Desktop
             RunOnUi(delegate { AbortOnUi(downloadToAbort); });
         }
 
-        // Drop queued items and kill the active Aria2 process, if this queue started one.
+        // Drop queued items and cancel the active transfer, Aria2 or WebClient.
         public void Shutdown()
         {
             RunOnUi(delegate
@@ -63,24 +63,9 @@ namespace SoftwareShelf_Desktop
                     }
                 }
 
-                Process process = current == null ? null : current.aria2Process;
-                if (process == null)
+                if (current != null)
                 {
-                    return;
-                }
-
-                try
-                {
-                    if (!process.HasExited)
-                    {
-                        process.Kill();
-                    }
-                }
-                catch (InvalidOperationException)
-                {
-                }
-                catch (Win32Exception)
-                {
+                    CancelActive(current);
                 }
             });
         }
@@ -280,7 +265,26 @@ namespace SoftwareShelf_Desktop
             };
             process.Exited += delegate
             {
-                PostOnUi(delegate { CompleteDownloadOnUi(downloadItem); });
+                PostOnUi(delegate
+                {
+                    if (downloadItem != activeDownload)
+                    {
+                        return;
+                    }
+
+                    // Kill() from cancel or close is a non-zero exit. That is not a failure.
+                    int exitCode = process.ExitCode;
+                    if (!downloadItem.cancelRequested && exitCode != 0)
+                    {
+                        MessageBox.Show("Error 22: File Download Failed. Aria2 exited with code " + exitCode + ".\n\nIf this continues, please try the ZIP option or turn Aria2 off.");
+                    }
+                    else if (!downloadItem.cancelRequested)
+                    {
+                        downloadItem.downloadProgress = 100;
+                    }
+
+                    CompleteDownloadOnUi(downloadItem);
+                });
             };
 
             downloadItem.aria2Process = process;

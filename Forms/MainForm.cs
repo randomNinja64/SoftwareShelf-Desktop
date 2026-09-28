@@ -330,7 +330,7 @@ namespace SoftwareShelf_Desktop
                 }
             }
 
-            // Drop the queue and kill the Aria2 process this download started.
+            // Drop the queue and cancel the active download.
             downloadHandler.Shutdown();
         }
 
