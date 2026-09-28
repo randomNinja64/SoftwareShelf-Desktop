@@ -284,16 +284,14 @@ namespace SoftwareShelf_Desktop
 
                     result.creator = FirstValue(item["creator"]);
 
-                    // Set date
+                    result.date = "";
                     if (item["date"] != null)
                     {
                         DateTime date;
-                        DateTime.TryParseExact(item["date"].ToString(), "M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
-                        result.date = date.Year.ToString();
-                    }
-                    else
-                    {
-                        result.date = "";
+                        if (DateTime.TryParseExact(item["date"].ToString(), "M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+                        {
+                            result.date = date.Year.ToString();
+                        }
                     }
 
                     result.topic = FirstValue(item["subject"]);
