@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Windows.Forms;
 namespace SoftwareShelf_Desktop
 {
@@ -90,13 +89,18 @@ namespace SoftwareShelf_Desktop
             string filter = filterTxt.Text.ToLower();
 
             // Filter the items
-            var filteredItems = files
-                .Where(item => item.ToLower().Contains(filter))
-                .ToArray();
+            List<string> filteredItems = new List<string>();
+            foreach (string item in files)
+            {
+                if (item.ToLower().Contains(filter))
+                {
+                    filteredItems.Add(item);
+                }
+            }
 
             // Update filesListBox
             filesListBox.Items.Clear();
-            filesListBox.Items.AddRange(filteredItems);
+            filesListBox.Items.AddRange(filteredItems.ToArray());
         }
     }
 }

@@ -19,7 +19,6 @@ namespace SoftwareShelf_Desktop
             set { _frmObj = value; }
         }
 
-
         public MainForm()
         {
             InitializeComponent();
@@ -29,13 +28,6 @@ namespace SoftwareShelf_Desktop
         {
             // Set the form object
             frmObj = this;
-
-            // Check if AriaMode exists in config and add it, set to true if not
-            #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-            if (Properties.Settings.Default.AriaMode == null)
-            {
-                Properties.Settings.Default.AriaMode = true;
-            }
 
             // If a download path hasn't been set, prompt the user for one
             if (Properties.Settings.Default.DownloadPath == "")
@@ -47,17 +39,11 @@ namespace SoftwareShelf_Desktop
                 
             }
 
-            // If the number of threads hasn't been set in config, add it and set it to 4
-            if (Properties.Settings.Default.DLThreads == null)
+            // Aria2 does not run below Windows XP. A copied settings file must not turn it back on.
+            if (Environment.OSVersion.Version < new Version(5, 1))
             {
-                Properties.Settings.Default.DLThreads = 4;
+                Properties.Settings.Default.AriaMode = false;
             }
-            // If torrent processing is not set in config, set it to true
-            if (Properties.Settings.Default.TorrentProcessing == null)
-            {
-                Properties.Settings.Default.TorrentProcessing = false;
-            }
-            #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
 
             // Save default settings
             Properties.Settings.Default.Save();
@@ -78,21 +64,32 @@ namespace SoftwareShelf_Desktop
             // Set the Data Source of the Download Manager to the Binding Source
             downloadsDataGridView.DataSource = downloadBindingSource;
 
-            // Set boostChk based on AriaMode boolean
-            boostChk.Checked = Properties.Settings.Default.AriaMode;
-
-            // If aria2 is enabled, allow torrentChk to be checked/unchecked, and threads to be changed
-            if (boostChk.Checked)
+            if (Environment.OSVersion.Version < new Version(5, 1))
             {
-                torrentChk.Enabled = true;
-                threadsNum.Enabled = true;
+                boostChk.Visible = false;
+                torrentChk.Visible = false;
+                threadsNum.Visible = false;
+                threadLbl.Visible = false;
+                dlDirTxtBox.Width = openDownloadsBtn.Left - dlDirTxtBox.Left - 4;
             }
+            else
+            {
+                // Set boostChk based on AriaMode boolean
+                boostChk.Checked = Properties.Settings.Default.AriaMode;
 
-            // Set torrentChk based on TorrentProcessing boolean
-            torrentChk.Checked = Properties.Settings.Default.TorrentProcessing;
+                // If aria2 is enabled, allow torrentChk to be checked/unchecked, and threads to be changed
+                if (boostChk.Checked)
+                {
+                    torrentChk.Enabled = true;
+                    threadsNum.Enabled = true;
+                }
 
-            // Set DLThreads Number
-            threadsNum.Value = Properties.Settings.Default.DLThreads;
+                // Set torrentChk based on TorrentProcessing boolean
+                torrentChk.Checked = Properties.Settings.Default.TorrentProcessing;
+
+                // Set DLThreads Number
+                threadsNum.Value = Properties.Settings.Default.DLThreads;
+            }
 
             // Set type drop down
             typeDropDown.SelectedIndex = 5;
@@ -400,6 +397,19 @@ namespace SoftwareShelf_Desktop
 
         private void boostChk_CheckedChanged(object sender, EventArgs e)
         {
+            if (Environment.OSVersion.Version < new Version(5, 1))
+            {
+                Properties.Settings.Default.AriaMode = false;
+                Properties.Settings.Default.Save();
+                torrentChk.Enabled = false;
+                threadsNum.Enabled = false;
+                if (boostChk.Checked)
+                {
+                    boostChk.Checked = false;
+                }
+                return;
+            }
+
             //If checked, enable aria2
             if (boostChk.Checked)
             {

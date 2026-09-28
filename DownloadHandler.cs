@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
@@ -65,7 +64,9 @@ namespace SoftwareShelf_Desktop
                 // If the download identifier is found, remove any segments before it.
                 if (identifierIndex >= 0)
                 {
-                    segments = segments.Skip(identifierIndex).ToArray();
+                    string[] tail = new string[segments.Length - identifierIndex];
+                    Array.Copy(segments, identifierIndex, tail, 0, tail.Length);
+                    segments = tail;
                 }
                 else
                 {
@@ -186,7 +187,15 @@ namespace SoftwareShelf_Desktop
                 {
                     // The below code sets progress
                     string progress = aria2output.Substring(aria2output.IndexOf("%") - 3, 3);
-                    progress = new string(progress.Where(c => char.IsDigit(c)).ToArray());
+                    string digits = string.Empty;
+                    foreach (char c in progress)
+                    {
+                        if (char.IsDigit(c))
+                        {
+                            digits += c;
+                        }
+                    }
+                    progress = digits;
                     if (double.TryParse(progress, out double progressDouble))
                     {
                         try
@@ -250,7 +259,7 @@ namespace SoftwareShelf_Desktop
                 if (Application.OpenForms[0].InvokeRequired)
                 {
                     // Use BeginInvoke to execute the downloadItem method on the UI thread
-                    Application.OpenForms[0].BeginInvoke(new Action(() => Downloads.RemoveAt(0)));
+                    Application.OpenForms[0].BeginInvoke(new MethodInvoker(delegate { Downloads.RemoveAt(0); }));
 
                     // Wait for the above line to finish
                     Thread.Sleep(100);
@@ -258,7 +267,7 @@ namespace SoftwareShelf_Desktop
                     // If there are still more downloads in the queue, start the next one
                     if (Downloads.Count > 0)
                     {
-                        Application.OpenForms[0].BeginInvoke(new Action(() => downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath)));
+                        Application.OpenForms[0].BeginInvoke(new MethodInvoker(delegate { downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath); }));
                     }
 
                     // If there are no more downloads in the queue, stop the timer
@@ -335,7 +344,7 @@ namespace SoftwareShelf_Desktop
                 if (Application.OpenForms[0].InvokeRequired)
                 {
                     // Use BeginInvoke to execute the downloadItem method on the UI thread
-                    Application.OpenForms[0].BeginInvoke(new Action(() => downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath)));
+                    Application.OpenForms[0].BeginInvoke(new MethodInvoker(delegate { downloadItem(Downloads[0], Properties.Settings.Default.DownloadPath); }));
                 }
                 else
                 {

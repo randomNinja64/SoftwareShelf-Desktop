@@ -50,3 +50,10 @@ cache/
 
 
 .editorconfig
+
+# Staged release output from build.bat
+/SoftwareShelf Desktop/
+
+# Optional local binaries for build.bat (keep folder via .gitkeep)
+/deps/*
+!/deps/.gitkeep

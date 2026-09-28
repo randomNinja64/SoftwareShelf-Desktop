@@ -33,3 +33,7 @@ Release Notes 1.5.0:
 - Fixed subfolder handling in Archive.org items so that files are downloaded to the appropriate subfolder, rather than downloading all files to the root folder
 - Improved alignment of settings controls in the Downloads tab
 - Improved optimizations for singlethreaded mode (WebClient is now properly disposed of after usage)
+
+Release Notes 1.6.0:
+- Legacy and standard edition combined into one executable compatible with Windows 98 and above. (.NET 2.0 required) (Aria2 only available on XP+)
+
