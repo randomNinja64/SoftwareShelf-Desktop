@@ -34,11 +34,6 @@ namespace SoftwareShelf_Desktop
                 return;
             }
 
-            foreach (ArchiveHandler.ArchiveFile file in files)
-            {
-                checkedFiles[file.name] = !IsUncheckedByDefault(file.name);
-            }
-
             ShowFiles(files);
         }
 
@@ -65,8 +60,6 @@ namespace SoftwareShelf_Desktop
 
         private void filterTxt_TextChanged(object sender, EventArgs e)
         {
-            RememberVisibleChecks();
-
             string filter = filterTxt.Text.ToLower();
             List<ArchiveHandler.ArchiveFile> filteredItems = new List<ArchiveHandler.ArchiveFile>();
             foreach (ArchiveHandler.ArchiveFile item in files)
@@ -100,18 +93,13 @@ namespace SoftwareShelf_Desktop
             for (int i = 0; i < filesListBox.Items.Count; i++)
             {
                 filesListBox.SetItemChecked(i, include);
-                ArchiveHandler.ArchiveFile file = (ArchiveHandler.ArchiveFile)filesListBox.Items[i];
-                checkedFiles[file.name] = include;
             }
         }
 
-        private void RememberVisibleChecks()
+        private void filesListBox_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            for (int i = 0; i < filesListBox.Items.Count; i++)
-            {
-                ArchiveHandler.ArchiveFile file = (ArchiveHandler.ArchiveFile)filesListBox.Items[i];
-                checkedFiles[file.name] = filesListBox.GetItemChecked(i);
-            }
+            ArchiveHandler.ArchiveFile file = (ArchiveHandler.ArchiveFile)filesListBox.Items[e.Index];
+            checkedFiles[file.name] = e.NewValue == CheckState.Checked;
         }
 
         private static Uri ArchiveDownloadUri(string identifier, string relativeFile)

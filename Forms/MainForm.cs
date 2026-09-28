@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace SoftwareShelf_Desktop
@@ -197,23 +196,26 @@ namespace SoftwareShelf_Desktop
             zipBtn.Enabled = sizeInGB < 40;
         }
 
+        private void showDownloadsIfQueued(MethodInvoker queue)
+        {
+            int countBefore = downloadHandler.Downloads.Count;
+            queue();
+            if (downloadHandler.Downloads.Count > countBefore)
+            {
+                controlTabs.SelectedTab = downloadTab;
+            }
+        }
+
         private void downloadButton_Click(object sender, EventArgs e)
         {
-            //If an item is selected, Open DownloadForm and pass in the selected item's identifier
             if (resultsGrid.SelectedRows.Count > 0)
             {
-                // Enumerate items in Downloads tab before dialog
-                int numDownloads = downloadHandler.Downloads.Count;
-                
-                DownloadForm downloadForm = new DownloadForm(resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString(), downloadHandler, progressTimer);
-                downloadForm.ShowDialog();
-
-                // Change selected tab to downloads tab if items were downloaded
-                if (downloadHandler.Downloads.Count > numDownloads)
+                string identifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
+                showDownloadsIfQueued(delegate
                 {
-                    controlTabs.SelectedTab = downloadTab;
-                }
-                
+                    DownloadForm downloadForm = new DownloadForm(identifier, downloadHandler, progressTimer);
+                    downloadForm.ShowDialog();
+                });
             }
         }
 
@@ -371,31 +373,15 @@ namespace SoftwareShelf_Desktop
 
         private void zipBtn_Click(object sender, EventArgs e)
         {
-            //If an item is selected, Open DownloadForm and pass in the selected item's identifier
             if (resultsGrid.SelectedRows.Count > 0)
             {
-                // Enumerate items in Downloads tab before dialog
-                int numDownloads = downloadHandler.Downloads.Count;
-
-                // Get identifier
                 string itemIdentifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
-
-                // Create a filename
                 string fileName = itemIdentifier + ".zip";
-
-                // Add download to download handler
                 Uri URL = new Uri("http://archive.org/compress/" + Uri.EscapeDataString(itemIdentifier));
-
-                //MessageBox.Show(URL.ToString());
-
-                downloadHandler.addDownload(URL, itemIdentifier, fileName, progressTimer);
-
-                // Change selected tab to downloads tab if items were downloaded
-                if (downloadHandler.Downloads.Count > numDownloads)
+                showDownloadsIfQueued(delegate
                 {
-                    controlTabs.SelectedTab = downloadTab;
-                }
-
+                    downloadHandler.addDownload(URL, itemIdentifier, fileName, progressTimer);
+                });
             }
         }
 
@@ -431,14 +417,9 @@ namespace SoftwareShelf_Desktop
             yearTxt.SelectionStart = yearTxt.Text.Length;
         }
 
-        private void searchTab_Resize(object sender, EventArgs e)
+        private void tab_Resize(object sender, EventArgs e)
         {
-            searchTab.Invalidate();
-        }
-
-        private void downloadTab_Resize(object sender, EventArgs e)
-        {
-            downloadTab.Invalidate();
+            ((Control)sender).Invalidate();
         }
 
         private void latestBtn_Click(object sender, EventArgs e)

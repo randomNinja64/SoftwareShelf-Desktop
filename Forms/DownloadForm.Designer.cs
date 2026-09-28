@@ -87,6 +87,7 @@
             this.filesListBox.ScrollAlwaysVisible = true;
             this.filesListBox.Size = new System.Drawing.Size(310, 151);
             this.filesListBox.TabIndex = 2;
+            this.filesListBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.filesListBox_ItemCheck);
             // 
             // tableLayoutPanel1
             // 

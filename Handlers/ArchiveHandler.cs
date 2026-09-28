@@ -217,7 +217,7 @@ namespace SoftwareShelf_Desktop
         {
             Console.WriteLine("[Info] Parsing results.");
 
-            JArray results_array;
+            JArray results_array = null;
             try
             {
                 JObject results_obj = JObject.Parse(resultsJson);
@@ -225,8 +225,7 @@ namespace SoftwareShelf_Desktop
             }
             catch
             {
-                MessageBox.Show("Error 03: The search response could not be read.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
+                results_array = null;
             }
 
             if (results_array == null)

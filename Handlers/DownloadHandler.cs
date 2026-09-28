@@ -23,13 +23,7 @@ namespace SoftwareShelf_Desktop
         // Function to Add Download
         public void addDownload(Uri downloadUrl, string identifier, string fileName, Timer progressTimer)
         {
-            // Correct filename, removing any invalid characters for Windows, replacing them with -
-            foreach (char c in Path.GetInvalidFileNameChars())
-            {
-                fileName = fileName.Replace(c, '-');
-            }
-
-            string safeName = fileName;
+            string safeName = SanitizePathSegment(fileName);
             RunOnUi(delegate
             {
                 this.progressTimer = progressTimer;
@@ -208,7 +202,7 @@ namespace SoftwareShelf_Desktop
             // If Aria2 is disabled, use standard procedures
             if (!Properties.Settings.Default.AriaMode)
             {
-                downloadItemSinglethreaded(downloadItem, destination);
+                downloadItemSinglethreaded(downloadItem);
             }
             else
             {
@@ -218,7 +212,7 @@ namespace SoftwareShelf_Desktop
         }
 
         // Function to download item (non-multithreaded)
-        private void downloadItemSinglethreaded(Download downloadItem, string destination)
+        private void downloadItemSinglethreaded(Download downloadItem)
         {
             downloadItem.WebClient = new WebClient();
 
@@ -247,7 +241,7 @@ namespace SoftwareShelf_Desktop
             // If the user is trying to download a torrent file and process torrents is disabled, download the .torrent singlethreaded
             if (!Properties.Settings.Default.TorrentProcessing && downloadUrl.ToLower().EndsWith(".torrent"))
             {
-                downloadItemSinglethreaded(downloadItem, destination);
+                downloadItemSinglethreaded(downloadItem);
                 return;
             }
 
@@ -529,32 +523,15 @@ namespace SoftwareShelf_Desktop
 
         private void RunOnUi(MethodInvoker action)
         {
-            Form form = MainForm.frmObj;
-            if (form == null || form.IsDisposed || !form.IsHandleCreated)
-            {
-                return;
-            }
-
-            if (form.InvokeRequired)
-            {
-                try
-                {
-                    form.Invoke(action);
-                }
-                catch (ObjectDisposedException)
-                {
-                }
-                catch (InvalidOperationException)
-                {
-                }
-            }
-            else
-            {
-                action();
-            }
+            MarshalToUi(action, true);
         }
 
         private void PostOnUi(MethodInvoker action)
+        {
+            MarshalToUi(action, false);
+        }
+
+        private void MarshalToUi(MethodInvoker action, bool wait)
         {
             Form form = MainForm.frmObj;
             if (form == null || form.IsDisposed || !form.IsHandleCreated)
@@ -562,22 +539,28 @@ namespace SoftwareShelf_Desktop
                 return;
             }
 
-            if (form.InvokeRequired)
+            if (!form.InvokeRequired)
             {
-                try
+                action();
+                return;
+            }
+
+            try
+            {
+                if (wait)
+                {
+                    form.Invoke(action);
+                }
+                else
                 {
                     form.BeginInvoke(action);
                 }
-                catch (ObjectDisposedException)
-                {
-                }
-                catch (InvalidOperationException)
-                {
-                }
             }
-            else
+            catch (ObjectDisposedException)
             {
-                action();
+            }
+            catch (InvalidOperationException)
+            {
             }
         }
     }

@@ -46,9 +46,7 @@
             this.downloadsDataGridView = new System.Windows.Forms.DataGridView();
             this.DownloadUrl = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Speed = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.downloadIdentifier = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DownloadProgress = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.downloadTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.searchTab = new System.Windows.Forms.TabPage();
             this.topicInfoLbl = new System.Windows.Forms.Label();
             this.publishedInfoLbl = new System.Windows.Forms.Label();
@@ -116,7 +114,7 @@
             this.downloadTab.TabIndex = 1;
             this.downloadTab.Text = "Downloads";
             this.downloadTab.UseVisualStyleBackColor = true;
-            this.downloadTab.Resize += new System.EventHandler(this.downloadTab_Resize);
+            this.downloadTab.Resize += new System.EventHandler(this.tab_Resize);
             // 
             // torrentChk
             // 
@@ -255,9 +253,7 @@
             this.downloadsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.DownloadUrl,
             this.Speed,
-            this.downloadIdentifier,
-            this.DownloadProgress,
-            this.downloadTime});
+            this.DownloadProgress});
             this.downloadsDataGridView.Location = new System.Drawing.Point(6, 7);
             this.downloadsDataGridView.MultiSelect = false;
             this.downloadsDataGridView.Name = "downloadsDataGridView";
@@ -283,28 +279,12 @@
             this.Speed.Name = "Speed";
             this.Speed.ReadOnly = true;
             // 
-            // downloadIdentifier
-            // 
-            this.downloadIdentifier.DataPropertyName = "downloadIdentifier";
-            this.downloadIdentifier.HeaderText = "downloadIdentifier";
-            this.downloadIdentifier.Name = "downloadIdentifier";
-            this.downloadIdentifier.ReadOnly = true;
-            this.downloadIdentifier.Visible = false;
-            // 
             // DownloadProgress
             // 
             this.DownloadProgress.DataPropertyName = "DownloadProgress";
             this.DownloadProgress.HeaderText = "Progress";
             this.DownloadProgress.Name = "DownloadProgress";
             this.DownloadProgress.ReadOnly = true;
-            // 
-            // downloadTime
-            // 
-            this.downloadTime.DataPropertyName = "downloadTime";
-            this.downloadTime.HeaderText = "downloadTime";
-            this.downloadTime.Name = "downloadTime";
-            this.downloadTime.ReadOnly = true;
-            this.downloadTime.Visible = false;
             // 
             // searchTab
             // 
@@ -325,7 +305,7 @@
             this.searchTab.TabIndex = 0;
             this.searchTab.Text = "Search";
             this.searchTab.UseVisualStyleBackColor = true;
-            this.searchTab.Resize += new System.EventHandler(this.searchTab_Resize);
+            this.searchTab.Resize += new System.EventHandler(this.tab_Resize);
             // 
             // topicInfoLbl
             // 
@@ -726,9 +706,7 @@
         private System.Windows.Forms.DataGridView downloadsDataGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn DownloadUrl;
         private System.Windows.Forms.DataGridViewTextBoxColumn Speed;
-        private System.Windows.Forms.DataGridViewTextBoxColumn downloadIdentifier;
         private System.Windows.Forms.DataGridViewTextBoxColumn DownloadProgress;
-        private System.Windows.Forms.DataGridViewTextBoxColumn downloadTime;
         private System.Windows.Forms.TabPage searchTab;
         private System.Windows.Forms.Panel searchPanel;
         private System.Windows.Forms.TextBox topicTxt;
