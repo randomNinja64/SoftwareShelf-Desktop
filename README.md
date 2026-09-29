@@ -11,7 +11,7 @@ SoftwareShelf Desktop is a desktop application designed to search and download f
 ## Requirements
 
 - Windows 98 or later (Windows XP+ for multithreaded Aria2-based downloads)
-- .NET Framework 2.0 (on Windows 7 and later, the TLS 1.2 update to .NET 3.5 lets single-threaded downloads use TLS 1.2)
+- .NET Framework 2.0
 - aria2c executable (included with installer and release builds but not with source code)
 
 ## Building
