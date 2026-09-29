@@ -9,17 +9,6 @@ namespace SoftwareShelf_Desktop
         public DownloadHandler downloadHandler;
         public Timer progressTimer;
 
-        private static readonly string[] UncheckedExtensions = new string[]
-        {
-            ".xml",
-            ".sqlite",
-            ".torrent",
-            ".webp",
-            ".jpg",
-            ".png",
-            ".bmp"
-        };
-
         private List<ArchiveHandler.ArchiveFile> files;
         private Dictionary<string, bool> checkedFiles = new Dictionary<string, bool>();
 
@@ -58,7 +47,7 @@ namespace SoftwareShelf_Desktop
         {
             foreach (ArchiveHandler.ArchiveFile file in filesListBox.CheckedItems)
             {
-                Uri URL = ArchiveHandler.FileDownloadUrl(itemIdentifier, file.name);
+                Uri URL = ArchiveDownloadUri(itemIdentifier, file.name);
                 downloadHandler.addDownload(URL, itemIdentifier, file.name, progressTimer);
             }
 
@@ -67,10 +56,11 @@ namespace SoftwareShelf_Desktop
 
         private void filterTxt_TextChanged(object sender, EventArgs e)
         {
+            string filter = filterTxt.Text.ToLower();
             List<ArchiveHandler.ArchiveFile> filteredItems = new List<ArchiveHandler.ArchiveFile>();
             foreach (ArchiveHandler.ArchiveFile item in files)
             {
-                if (item.name.IndexOf(filterTxt.Text, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (item.name.ToLower().Contains(filter))
                 {
                     filteredItems.Add(item);
                 }
@@ -108,16 +98,29 @@ namespace SoftwareShelf_Desktop
             checkedFiles[file.name] = e.NewValue == CheckState.Checked;
         }
 
+        private static Uri ArchiveDownloadUri(string identifier, string relativeFile)
+        {
+            System.Text.StringBuilder path = new System.Text.StringBuilder("http://archive.org/download/");
+            path.Append(Uri.EscapeDataString(identifier));
+            string[] parts = relativeFile.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string part in parts)
+            {
+                path.Append('/');
+                path.Append(Uri.EscapeDataString(part));
+            }
+            return new Uri(path.ToString());
+        }
+
         private static bool IsUncheckedByDefault(string name)
         {
-            foreach (string extension in UncheckedExtensions)
-            {
-                if (name.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-            return false;
+            string lower = name.ToLower();
+            return lower.EndsWith(".xml")
+                || lower.EndsWith(".sqlite")
+                || lower.EndsWith(".torrent")
+                || lower.EndsWith(".webp")
+                || lower.EndsWith(".jpg")
+                || lower.EndsWith(".png")
+                || lower.EndsWith(".bmp");
         }
     }
 }

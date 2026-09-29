@@ -131,7 +131,8 @@ namespace SoftwareShelf_Desktop
 
         private void searchBtn_Click(object sender, EventArgs e)
         {
-            showResults(ArchiveHandler.Search(searchTxtBox.Text, getMediaType(typeDropDown.SelectedItem.ToString()), creatorTxt.Text, topicTxt.Text, yearTxt.Text));
+            string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
+            showResults(ArchiveHandler.Search(searchTxtBox.Text, mediaType, creatorTxt.Text, topicTxt.Text, yearTxt.Text));
         }
 
         private void searchTxtBox_KeyDown(object sender, KeyEventArgs e)
@@ -160,7 +161,7 @@ namespace SoftwareShelf_Desktop
 
             string identifier = row.Cells["identifier"].Value.ToString();
             resultPreview.CancelAsync();
-            resultPreview.ImageLocation = ArchiveHandler.BaseUrl + "download/" + identifier + "/__ia_thumb.jpg";
+            resultPreview.ImageLocation = "http://archive.org/download/" + identifier + "/__ia_thumb.jpg";
             creatorInfoLbl.Text = "Creator: " + row.Cells["creator"].Value.ToString();
             publishedInfoLbl.Text = "Published: " + row.Cells["date"].Value.ToString();
             topicInfoLbl.Text = "Topic: " + row.Cells["topic"].Value.ToString();
@@ -185,19 +186,6 @@ namespace SoftwareShelf_Desktop
 
         private void downloadButton_Click(object sender, EventArgs e)
         {
-            OpenDownloadDialog();
-        }
-
-        private void resultsGrid_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                OpenDownloadDialog();
-            }
-        }
-
-        private void OpenDownloadDialog()
-        {
             if (resultsGrid.SelectedRows.Count > 0)
             {
                 string identifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
@@ -206,6 +194,14 @@ namespace SoftwareShelf_Desktop
                     DownloadForm downloadForm = new DownloadForm(identifier, downloadHandler, progressTimer);
                     downloadForm.ShowDialog();
                 });
+            }
+        }
+
+        private void resultsGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                downloadButton_Click(this, new EventArgs());
             }
         }
 
@@ -285,7 +281,7 @@ namespace SoftwareShelf_Desktop
             if (e.RowIndex == -1)
                 return;
 
-            OpenDownloadDialog();
+            downloadButton_Click(this, new EventArgs());
         }
 
         private void openDownloadsBtn_Click(object sender, EventArgs e)
@@ -330,7 +326,6 @@ namespace SoftwareShelf_Desktop
             //If progress timer is running, do nothing
             if (progressTimer.Enabled)
             {
-                //Reset checkbox
                 boostChk.Checked = !boostChk.Checked;
             }
         }
@@ -341,7 +336,7 @@ namespace SoftwareShelf_Desktop
             {
                 string itemIdentifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
                 string fileName = itemIdentifier + ".zip";
-                Uri URL = new Uri(ArchiveHandler.BaseUrl + "compress/" + Uri.EscapeDataString(itemIdentifier));
+                Uri URL = new Uri("http://archive.org/compress/" + Uri.EscapeDataString(itemIdentifier));
                 showDownloadsIfQueued(delegate
                 {
                     downloadHandler.addDownload(URL, itemIdentifier, fileName, progressTimer);
@@ -387,7 +382,8 @@ namespace SoftwareShelf_Desktop
 
         private void latestBtn_Click(object sender, EventArgs e)
         {
-            showResults(ArchiveHandler.GetLatestItems(getMediaType(typeDropDown.SelectedItem.ToString())));
+            string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
+            showResults(ArchiveHandler.GetLatestItems(mediaType));
         }
 
         private void resultPreview_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
