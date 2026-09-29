@@ -7,24 +7,16 @@ namespace SoftwareShelf_Desktop
 {
     public partial class MainForm : Form
     {
-        DownloadHandler downloadHandler = new DownloadHandler();
-
-        static MainForm _frmObj;
-        public static MainForm frmObj
-        {
-            get { return _frmObj; }
-            set { _frmObj = value; }
-        }
+        readonly DownloadHandler downloadHandler;
 
         public MainForm()
         {
             InitializeComponent();
+            downloadHandler = new DownloadHandler(this, progressTimer);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            frmObj = this;
-
             // If a download path hasn't been set, prompt the user for one
             if (Properties.Settings.Default.DownloadPath == "")
             {
@@ -191,7 +183,7 @@ namespace SoftwareShelf_Desktop
                 string identifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
                 showDownloadsIfQueued(delegate
                 {
-                    DownloadForm downloadForm = new DownloadForm(identifier, downloadHandler, progressTimer);
+                    DownloadForm downloadForm = new DownloadForm(identifier, downloadHandler);
                     downloadForm.ShowDialog();
                 });
             }
@@ -339,7 +331,7 @@ namespace SoftwareShelf_Desktop
                 Uri URL = new Uri("http://archive.org/compress/" + Uri.EscapeDataString(itemIdentifier));
                 showDownloadsIfQueued(delegate
                 {
-                    downloadHandler.addDownload(URL, itemIdentifier, fileName, progressTimer);
+                    downloadHandler.addDownload(URL, itemIdentifier, fileName);
                 });
             }
         }

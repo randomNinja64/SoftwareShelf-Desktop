@@ -7,16 +7,14 @@ namespace SoftwareShelf_Desktop
     {
         public string itemIdentifier;
         public DownloadHandler downloadHandler;
-        public Timer progressTimer;
 
         private List<ArchiveHandler.ArchiveFile> files;
         private Dictionary<string, bool> checkedFiles = new Dictionary<string, bool>();
 
-        public DownloadForm(string identifier, DownloadHandler downloadHandler, Timer progressTimer)
+        public DownloadForm(string identifier, DownloadHandler downloadHandler)
         {
             this.downloadHandler = downloadHandler;
             itemIdentifier = identifier;
-            this.progressTimer = progressTimer;
             InitializeComponent();
         }
 
@@ -48,7 +46,7 @@ namespace SoftwareShelf_Desktop
             foreach (ArchiveHandler.ArchiveFile file in filesListBox.CheckedItems)
             {
                 Uri URL = ArchiveDownloadUri(itemIdentifier, file.name);
-                downloadHandler.addDownload(URL, itemIdentifier, file.name, progressTimer);
+                downloadHandler.addDownload(URL, itemIdentifier, file.name);
             }
 
             this.Close();

@@ -11,22 +11,23 @@ namespace SoftwareShelf_Desktop
     {
         public BindingList<Download> Downloads;
 
+        private readonly Control ui;
+        private readonly Timer progressTimer;
         private Download activeDownload;
-        private Timer progressTimer;
 
-        // Constructor
-        public DownloadHandler()
+        public DownloadHandler(Control ui, Timer progressTimer)
         {
+            this.ui = ui;
+            this.progressTimer = progressTimer;
             this.Downloads = new BindingList<Download>();
         }
 
         // Function to Add Download
-        public void addDownload(Uri downloadUrl, string identifier, string fileName, Timer progressTimer)
+        public void addDownload(Uri downloadUrl, string identifier, string fileName)
         {
             string safeName = SanitizePathSegment(fileName);
             RunOnUi(delegate
             {
-                this.progressTimer = progressTimer;
                 Downloads.Add(new Download(downloadUrl, identifier, safeName));
                 StartNext();
             });
@@ -125,15 +126,12 @@ namespace SoftwareShelf_Desktop
 
             if (Downloads.Count == 0)
             {
-                StopTimer();
+                progressTimer.Stop();
                 return;
             }
 
             activeDownload = Downloads[0];
-            if (progressTimer != null)
-            {
-                progressTimer.Start();
-            }
+            progressTimer.Start();
 
             try
             {
@@ -435,7 +433,7 @@ namespace SoftwareShelf_Desktop
 
             if (Application.OpenForms.Count == 0)
             {
-                StopTimer();
+                progressTimer.Stop();
                 return;
             }
 
@@ -505,14 +503,6 @@ namespace SoftwareShelf_Desktop
             MessageBox.Show("Error 22: File Download Failed: " + error + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
         }
 
-        private void StopTimer()
-        {
-            if (progressTimer != null)
-            {
-                progressTimer.Stop();
-            }
-        }
-
         private void RunOnUi(MethodInvoker action)
         {
             MarshalToUi(action, true);
@@ -525,13 +515,12 @@ namespace SoftwareShelf_Desktop
 
         private void MarshalToUi(MethodInvoker action, bool wait)
         {
-            Form form = MainForm.frmObj;
-            if (form == null || form.IsDisposed || !form.IsHandleCreated)
+            if (ui == null || ui.IsDisposed || !ui.IsHandleCreated)
             {
                 return;
             }
 
-            if (!form.InvokeRequired)
+            if (!ui.InvokeRequired)
             {
                 action();
                 return;
@@ -541,11 +530,11 @@ namespace SoftwareShelf_Desktop
             {
                 if (wait)
                 {
-                    form.Invoke(action);
+                    ui.Invoke(action);
                 }
                 else
                 {
-                    form.BeginInvoke(action);
+                    ui.BeginInvoke(action);
                 }
             }
             catch (ObjectDisposedException)
