@@ -185,19 +185,6 @@ namespace SoftwareShelf_Desktop
 
         private void downloadButton_Click(object sender, EventArgs e)
         {
-            OpenDownloadDialog();
-        }
-
-        private void resultsGrid_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                OpenDownloadDialog();
-            }
-        }
-
-        private void OpenDownloadDialog()
-        {
             if (resultsGrid.SelectedRows.Count > 0)
             {
                 string identifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
@@ -206,6 +193,14 @@ namespace SoftwareShelf_Desktop
                     DownloadForm downloadForm = new DownloadForm(identifier, downloadHandler, progressTimer);
                     downloadForm.ShowDialog();
                 });
+            }
+        }
+
+        private void resultsGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                downloadButton_Click(this, new EventArgs());
             }
         }
 
@@ -285,7 +280,7 @@ namespace SoftwareShelf_Desktop
             if (e.RowIndex == -1)
                 return;
 
-            OpenDownloadDialog();
+            downloadButton_Click(this, new EventArgs());
         }
 
         private void openDownloadsBtn_Click(object sender, EventArgs e)
@@ -330,7 +325,6 @@ namespace SoftwareShelf_Desktop
             //If progress timer is running, do nothing
             if (progressTimer.Enabled)
             {
-                //Reset checkbox
                 boostChk.Checked = !boostChk.Checked;
             }
         }
