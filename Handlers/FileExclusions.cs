@@ -11,8 +11,14 @@ namespace SoftwareShelf_Desktop
 
         public static bool IsExcluded(string category, string fileName)
         {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return false;
+            }
+
             string name = fileName.Substring(fileName.LastIndexOf('/') + 1).ToLower();
-            if (name.Contains("_thumb") || Array.Exists(Sidecars, extension => name.EndsWith(extension)))
+            bool thumbSidecar = name.Contains("_thumb") && Array.Exists(ImageFiles, extension => name.EndsWith(extension));
+            if (thumbSidecar || Array.Exists(Sidecars, extension => name.EndsWith(extension)))
             {
                 return true;
             }
