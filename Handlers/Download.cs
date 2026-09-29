@@ -26,7 +26,6 @@ namespace SoftwareShelf_Desktop
         public Download(Uri downloadUrl, string identifier, string fileName)
         {
             this.downloadUrl = downloadUrl;
-            this.downloadProgress = 0;
             this.downloadIdentifier = identifier;
             this.fileName = fileName;
             this.downloadTime = new Stopwatch();

@@ -12,10 +12,6 @@ namespace SoftwareShelf_Desktop
         private List<ArchiveHandler.ArchiveFile> files;
         private Dictionary<string, bool> checkedFiles = new Dictionary<string, bool>();
 
-        public DownloadForm()
-        {
-            InitializeComponent();
-        }
         public DownloadForm(string identifier, DownloadHandler downloadHandler, Timer progressTimer)
         {
             this.downloadHandler = downloadHandler;

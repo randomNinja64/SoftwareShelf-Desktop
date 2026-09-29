@@ -196,7 +196,6 @@ namespace SoftwareShelf_Desktop
 
         internal static string GetJsonResponse(string url)
         {
-            // LOGGING
             Console.WriteLine("[Info] Getting JSON Response.");
 
             try
@@ -225,7 +224,6 @@ namespace SoftwareShelf_Desktop
             }
             catch
             {
-                results_array = null;
             }
 
             if (results_array == null)
@@ -264,10 +262,6 @@ namespace SoftwareShelf_Desktop
                     {
                         result.downloads = (Int64)item["downloads"];
                     }
-                    else
-                    {
-                        result.downloads = 0;
-                    }
 
                     // Set the description. If it doesn't exist, set it to "No description found."
                     if (item["description"] != null)
@@ -289,10 +283,6 @@ namespace SoftwareShelf_Desktop
                     {
                         double.TryParse(item["avg_rating"].ToString(), out result.avgRating);
                     }
-                    else
-                    {
-                        result.avgRating = 0;
-                    }
 
                     result.creator = FirstValue(item["creator"]);
 
@@ -312,7 +302,6 @@ namespace SoftwareShelf_Desktop
                 }
                 catch
                 {
-                    continue;
                 }
             }
 
@@ -341,7 +330,6 @@ namespace SoftwareShelf_Desktop
 
         internal static List<ArchiveFile> ParseAvailableFiles(string metadata_json)
         {
-            // LOGGING
             Console.WriteLine("[Info] Parsing available files.");
             List<ArchiveFile> availableFiles = new List<ArchiveFile>();
 

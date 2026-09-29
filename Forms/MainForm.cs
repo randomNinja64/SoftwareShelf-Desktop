@@ -5,12 +5,10 @@ using System.Windows.Forms;
 
 namespace SoftwareShelf_Desktop
 {
-
     public partial class MainForm : Form
     {
-        // Create a new Download Handler
         DownloadHandler downloadHandler = new DownloadHandler();
-        
+
         static MainForm _frmObj;
         public static MainForm frmObj
         {
@@ -25,17 +23,15 @@ namespace SoftwareShelf_Desktop
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Set the form object
             frmObj = this;
 
             // If a download path hasn't been set, prompt the user for one
             if (Properties.Settings.Default.DownloadPath == "")
             {
-                if (setDownloadPath() == 1) 
+                if (setDownloadPath() == 1)
                 {
                     Application.Exit();
                 }
-                
             }
 
             // Aria2 does not run below Windows XP. A copied settings file must not turn it back on.
@@ -44,23 +40,16 @@ namespace SoftwareShelf_Desktop
                 Properties.Settings.Default.AriaMode = false;
             }
 
-            // Save default settings
             Properties.Settings.Default.Save();
 
-            // Place download path in appropriate control
             dlDirTxtBox.Text = Properties.Settings.Default.DownloadPath;
 
-            // Set Sort Column of resultsGrid to Name
             resultsGrid.Sort(resultsGrid.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
 
-            // Setup Downloads Grid View
-            // Create Binding Source For Download Manager
             BindingSource downloadBindingSource = new BindingSource
             {
-                // Set the Binding Source to the Download Handler
                 DataSource = downloadHandler.Downloads
             };
-            // Set the Data Source of the Download Manager to the Binding Source
             downloadsDataGridView.DataSource = downloadBindingSource;
 
             if (!supportsAria2())
@@ -73,7 +62,6 @@ namespace SoftwareShelf_Desktop
             }
             else
             {
-                // Set boostChk based on AriaMode boolean
                 boostChk.Checked = Properties.Settings.Default.AriaMode;
 
                 // If aria2 is enabled, allow torrentChk to be checked/unchecked, and threads to be changed
@@ -82,16 +70,12 @@ namespace SoftwareShelf_Desktop
                     SetAriaChildrenEnabled(true);
                 }
 
-                // Set torrentChk based on TorrentProcessing boolean
                 torrentChk.Checked = Properties.Settings.Default.TorrentProcessing;
 
-                // Set DLThreads Number
                 threadsNum.Value = Properties.Settings.Default.DLThreads;
             }
 
-            // Set type drop down
             typeDropDown.SelectedIndex = 5;
-
         }
 
         private static bool supportsAria2()
@@ -103,8 +87,6 @@ namespace SoftwareShelf_Desktop
         {
             switch (mediaTypeIn)
             {
-                case "All":
-                    return string.Empty;
                 case "Audio":
                     return "audio";
                 case "Books":
@@ -122,19 +104,15 @@ namespace SoftwareShelf_Desktop
 
         private void clearShownItems()
         {
-            // Clear Search Results
             resultsGrid.Rows.Clear();
 
-            // Clear Description Text
             resultDescription.Text = "";
 
-            // Clear labels on right side
             creatorInfoLbl.Text = "Creator: ";
             publishedInfoLbl.Text = "Published: ";
             topicInfoLbl.Text = "Topic: ";
 
-            // Set image box image back to default
-            resultPreview.Image = SoftwareShelf_Desktop.Properties.Resources.placeholder;
+            resultPreview.Image = Properties.Resources.placeholder;
         }
 
         private void showResults(List<ArchiveHandler.ArchiveItem> results)
@@ -231,26 +209,20 @@ namespace SoftwareShelf_Desktop
         {
             setDownloadPath();
 
-            //Update Text Box
             dlDirTxtBox.Text = Properties.Settings.Default.DownloadPath;
 
-            // Save Properties
             Properties.Settings.Default.Save();
         }
 
         private int setDownloadPath()
         {
-            // Create a new folder browser dialog
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog
             {
-                // Set the description
                 Description = "Please select path for downloaded files."
             };
 
-            // Show the dialog
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                // Set the download path
                 Properties.Settings.Default.DownloadPath = folderBrowserDialog.SelectedPath;
                 return 0;
             }
@@ -267,35 +239,23 @@ namespace SoftwareShelf_Desktop
 
         private void cancelDlButton_Click(object sender, EventArgs e)
         {
-            // If no row is selected, disable cancel button and return
             if (downloadsDataGridView.SelectedRows.Count == 0)
             {
                 cancelDlButton.Enabled = false;
                 return;
             }
-            
-            // If a download is running, abort it and delete the file
+
             if (downloadHandler.Downloads.Count > 0)
             {
-                // Retrieve the Download object bound to the selected row.
                 Download selectedDownload = (Download)downloadsDataGridView.SelectedRows[0].DataBoundItem;
 
-                // Abort the selected download
                 downloadHandler.Abort(selectedDownload);
             }
         }
 
         private void downloadsDataGridView_SelectionChanged(object sender, EventArgs e)
         {
-            //If a row is selected, leave the cancel button enabled
-            if (downloadsDataGridView.SelectedRows.Count > 0)
-            {
-                cancelDlButton.Enabled = true;
-            }
-            else
-            {
-                cancelDlButton.Enabled = false;
-            }
+            cancelDlButton.Enabled = downloadsDataGridView.SelectedRows.Count > 0;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -307,7 +267,7 @@ namespace SoftwareShelf_Desktop
                 if (result == DialogResult.No)
                 {
                     e.Cancel = true;
-                   return;
+                    return;
                 }
             }
 
@@ -321,17 +281,17 @@ namespace SoftwareShelf_Desktop
             if (e.RowIndex == -1)
                 return;
 
-            // If an item is clicked, run downloadBtn_Click
             downloadButton_Click(this, new EventArgs());
         }
 
         private void openDownloadsBtn_Click(object sender, EventArgs e)
         {
-            // Open explorer to text in Downloads directory Box
             try
             {
-                Process.Start("explorer.exe", @dlDirTxtBox.Text);
-            } catch {
+                Process.Start("explorer.exe", dlDirTxtBox.Text);
+            }
+            catch
+            {
                 MessageBox.Show("Error 31: Opening directory failed. Directory may not exist or permissions may be incorrect.");
             }
         }
@@ -366,7 +326,6 @@ namespace SoftwareShelf_Desktop
             //If progress timer is running, do nothing
             if (progressTimer.Enabled)
             {
-                //Reset checkbox
                 boostChk.Checked = !boostChk.Checked;
             }
         }
@@ -387,7 +346,6 @@ namespace SoftwareShelf_Desktop
 
         private void threadsNum_ValueChanged(object sender, EventArgs e)
         {
-            // Save new value to settings
             Properties.Settings.Default.DLThreads = (int)threadsNum.Value;
             Properties.Settings.Default.Save();
         }
@@ -430,26 +388,16 @@ namespace SoftwareShelf_Desktop
 
         private void resultPreview_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
-            // Check if there was an error during the image load
             if (e.Error != null)
             {
-                resultPreview.Image = SoftwareShelf_Desktop.Properties.Resources.placeholder;
+                resultPreview.Image = Properties.Resources.placeholder;
             }
         }
 
         private void torrentChk_CheckedChanged(object sender, EventArgs e)
         {
-            //If checked, enable torrent processing
-            if (torrentChk.Checked)
-            {
-                Properties.Settings.Default.TorrentProcessing = true;
-                Properties.Settings.Default.Save();
-            }
-            else
-            {
-                Properties.Settings.Default.TorrentProcessing = false;
-                Properties.Settings.Default.Save();
-            }
+            Properties.Settings.Default.TorrentProcessing = torrentChk.Checked;
+            Properties.Settings.Default.Save();
         }
 
         private void reviewButton_Click(object sender, EventArgs e)
@@ -458,4 +406,4 @@ namespace SoftwareShelf_Desktop
             reviewForm.ShowDialog();
         }
     }
-    }
+}

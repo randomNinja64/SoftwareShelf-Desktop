@@ -130,7 +130,7 @@ namespace SoftwareShelf_Desktop
             }
 
             activeDownload = Downloads[0];
-            if (progressTimer != null && !progressTimer.Enabled)
+            if (progressTimer != null)
             {
                 progressTimer.Start();
             }
@@ -439,14 +439,7 @@ namespace SoftwareShelf_Desktop
                 return;
             }
 
-            if (Downloads.Count > 0)
-            {
-                StartNext();
-            }
-            else
-            {
-                StopTimer();
-            }
+            StartNext();
         }
 
         private void DeleteCanceledFile(Download download)
@@ -458,9 +451,8 @@ namespace SoftwareShelf_Desktop
 
             try
             {
-                using (FileStream stream = new FileStream(download.localPath, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (new FileStream(download.localPath, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
-                    stream.Close();
                 }
                 File.Delete(download.localPath);
             }
@@ -515,7 +507,7 @@ namespace SoftwareShelf_Desktop
 
         private void StopTimer()
         {
-            if (progressTimer != null && progressTimer.Enabled)
+            if (progressTimer != null)
             {
                 progressTimer.Stop();
             }
