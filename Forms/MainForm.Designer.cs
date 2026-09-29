@@ -70,12 +70,7 @@
             this.resultName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.avgRating = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.resultSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.identifier = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Downloads = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.creator = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.topic = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.controlTabs = new System.Windows.Forms.TabControl();
             this.reviewButton = new System.Windows.Forms.Button();
             this.resultPreview = new System.Windows.Forms.PictureBox();
@@ -526,6 +521,7 @@
             this.resultsGrid.AllowUserToResizeRows = false;
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.resultsGrid.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
+            this.resultsGrid.AutoGenerateColumns = false;
             this.resultsGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -535,12 +531,7 @@
             this.resultName,
             this.avgRating,
             this.resultSize,
-            this.identifier,
-            this.description,
-            this.Downloads,
-            this.creator,
-            this.date,
-            this.topic});
+            this.Downloads});
             this.resultsGrid.Location = new System.Drawing.Point(208, 7);
             this.resultsGrid.MultiSelect = false;
             this.resultsGrid.Name = "resultsGrid";
@@ -558,6 +549,7 @@
             // resultName
             // 
             this.resultName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.resultName.DataPropertyName = "title";
             this.resultName.HeaderText = "Name";
             this.resultName.MinimumWidth = 120;
             this.resultName.Name = "resultName";
@@ -565,6 +557,7 @@
             // 
             // avgRating
             // 
+            this.avgRating.DataPropertyName = "avgRating";
             this.avgRating.FillWeight = 20F;
             this.avgRating.HeaderText = "Rating";
             this.avgRating.MaxInputLength = 10;
@@ -575,51 +568,18 @@
             // 
             // resultSize
             // 
+            this.resultSize.DataPropertyName = "size";
             this.resultSize.HeaderText = "Size";
             this.resultSize.MinimumWidth = 10;
             this.resultSize.Name = "resultSize";
             this.resultSize.ReadOnly = true;
             // 
-            // identifier
-            // 
-            this.identifier.HeaderText = "Identifier";
-            this.identifier.Name = "identifier";
-            this.identifier.ReadOnly = true;
-            this.identifier.Visible = false;
-            // 
-            // description
-            // 
-            this.description.HeaderText = "Description";
-            this.description.Name = "description";
-            this.description.ReadOnly = true;
-            this.description.Visible = false;
-            // 
             // Downloads
             // 
+            this.Downloads.DataPropertyName = "downloads";
             this.Downloads.HeaderText = "Downloads";
             this.Downloads.Name = "Downloads";
             this.Downloads.ReadOnly = true;
-            // 
-            // creator
-            // 
-            this.creator.HeaderText = "Creator";
-            this.creator.Name = "creator";
-            this.creator.ReadOnly = true;
-            this.creator.Visible = false;
-            // 
-            // date
-            // 
-            this.date.HeaderText = "Date";
-            this.date.Name = "date";
-            this.date.ReadOnly = true;
-            this.date.Visible = false;
-            // 
-            // topic
-            // 
-            this.topic.HeaderText = "Topic";
-            this.topic.Name = "topic";
-            this.topic.ReadOnly = true;
-            this.topic.Visible = false;
             // 
             // controlTabs
             // 
@@ -727,12 +687,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn resultName;
         private System.Windows.Forms.DataGridViewTextBoxColumn avgRating;
         private System.Windows.Forms.DataGridViewTextBoxColumn resultSize;
-        private System.Windows.Forms.DataGridViewTextBoxColumn identifier;
-        private System.Windows.Forms.DataGridViewTextBoxColumn description;
         private System.Windows.Forms.DataGridViewTextBoxColumn Downloads;
-        private System.Windows.Forms.DataGridViewTextBoxColumn creator;
-        private System.Windows.Forms.DataGridViewTextBoxColumn date;
-        private System.Windows.Forms.DataGridViewTextBoxColumn topic;
         public System.Windows.Forms.CheckBox torrentChk;
         private System.Windows.Forms.Button reviewButton;
     }

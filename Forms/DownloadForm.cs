@@ -11,10 +11,13 @@ namespace SoftwareShelf_Desktop
         private List<ArchiveHandler.ArchiveFile> files;
         private Dictionary<string, bool> checkedFiles = new Dictionary<string, bool>();
 
-        public DownloadForm(string identifier, DownloadHandler downloadHandler)
+        private readonly string category;
+
+        public DownloadForm(string identifier, string category, DownloadHandler downloadHandler)
         {
             this.downloadHandler = downloadHandler;
             itemIdentifier = identifier;
+            this.category = category;
             InitializeComponent();
         }
 
@@ -76,7 +79,7 @@ namespace SoftwareShelf_Desktop
                 bool include;
                 if (!checkedFiles.TryGetValue(file.name, out include))
                 {
-                    include = !IsUncheckedByDefault(file.name);
+                    include = !FileExclusions.IsExcluded(category, file.name);
                 }
                 filesListBox.SetItemChecked(index, include);
             }
@@ -127,18 +130,6 @@ namespace SoftwareShelf_Desktop
                 path.Append(Uri.EscapeDataString(part));
             }
             return new Uri(path.ToString());
-        }
-
-        private static bool IsUncheckedByDefault(string name)
-        {
-            string lower = name.ToLower();
-            return lower.EndsWith(".xml")
-                || lower.EndsWith(".sqlite")
-                || lower.EndsWith(".torrent")
-                || lower.EndsWith(".webp")
-                || lower.EndsWith(".jpg")
-                || lower.EndsWith(".png")
-                || lower.EndsWith(".bmp");
         }
     }
 }

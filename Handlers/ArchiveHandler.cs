@@ -28,18 +28,20 @@ namespace SoftwareShelf_Desktop
             }
         }
 
-        // Create a struct to store items from Archive.org
-        public struct ArchiveItem
+        // Items from Archive.org. Properties so the results grid can bind to them.
+        public class ArchiveItem
         {
-            public string title;
-            public string creator;
-            public string description;
-            public string identifier;
-            public string date;
-            public string topic;
-            public double avgRating;
-            public Int64 downloads;
-            public Int64 size;
+            public string title { get; set; }
+            public string creator { get; set; }
+            public string description { get; set; }
+            public string identifier { get; set; }
+            public string date { get; set; }
+            public string topic { get; set; }
+            public double avgRating { get; set; }
+            public Int64 downloads { get; set; }
+            public Int64 size { get; set; }
+            // Type dropdown label of the search that returned this item.
+            public string category { get; set; }
         }
 
         // Function to perform searches on Archive.org
@@ -271,7 +273,9 @@ namespace SoftwareShelf_Desktop
                     // If no value exists for avg_rating, set it to 0
                     if (item["avg_rating"] != null)
                     {
-                        double.TryParse(item["avg_rating"].ToString(), out result.avgRating);
+                        double rating;
+                        double.TryParse(item["avg_rating"].ToString(), out rating);
+                        result.avgRating = rating;
                     }
 
                     result.creator = FirstValue(item["creator"]);

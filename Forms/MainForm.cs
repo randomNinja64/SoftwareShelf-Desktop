@@ -8,6 +8,7 @@ namespace SoftwareShelf_Desktop
     public partial class MainForm : Form
     {
         readonly DownloadHandler downloadHandler;
+        readonly BindingSource resultsBindingSource = new BindingSource();
 
         public MainForm()
         {
@@ -37,7 +38,7 @@ namespace SoftwareShelf_Desktop
 
             dlDirTxtBox.Text = Properties.Settings.Default.DownloadPath;
 
-            resultsGrid.Sort(resultsGrid.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
+            resultsGrid.DataSource = resultsBindingSource;
 
             BindingSource downloadBindingSource = new BindingSource
             {
@@ -97,8 +98,6 @@ namespace SoftwareShelf_Desktop
 
         private void clearShownItems()
         {
-            resultsGrid.Rows.Clear();
-
             resultDescription.Text = "";
 
             creatorInfoLbl.Text = "Creator: ";
@@ -108,24 +107,35 @@ namespace SoftwareShelf_Desktop
             resultPreview.Image = Properties.Resources.placeholder;
         }
 
-        private void showResults(List<ArchiveHandler.ArchiveItem> results)
+        // A new list per search, so a header sort from the last search is not carried over.
+        private void showResults(List<ArchiveHandler.ArchiveItem> results, string category)
         {
             clearShownItems();
             if (results == null)
             {
-                return;
+                results = new List<ArchiveHandler.ArchiveItem>();
             }
 
             foreach (ArchiveHandler.ArchiveItem result in results)
             {
-                resultsGrid.Rows.Add(result.title, result.avgRating.ToString(), result.size, result.identifier, result.description, result.downloads, result.creator, result.date, result.topic);
+                result.category = category;
             }
+            resultsBindingSource.DataSource = new SortableBindingList<ArchiveHandler.ArchiveItem>(results);
+        }
+
+        private ArchiveHandler.ArchiveItem selectedResult()
+        {
+            if (resultsGrid.SelectedRows.Count == 0)
+            {
+                return null;
+            }
+            return (ArchiveHandler.ArchiveItem)resultsGrid.SelectedRows[0].DataBoundItem;
         }
 
         private void searchBtn_Click(object sender, EventArgs e)
         {
-            string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
-            showResults(ArchiveHandler.Search(searchTxtBox.Text, mediaType, creatorTxt.Text, topicTxt.Text, yearTxt.Text));
+            string category = typeDropDown.SelectedItem.ToString();
+            showResults(ArchiveHandler.Search(searchTxtBox.Text, getMediaType(category), creatorTxt.Text, topicTxt.Text, yearTxt.Text), category);
         }
 
         private void searchTxtBox_KeyDown(object sender, KeyEventArgs e)
@@ -155,7 +165,8 @@ namespace SoftwareShelf_Desktop
 
         private void resultsGrid_SelectionChanged(object sender, EventArgs e)
         {
-            if (resultsGrid.SelectedRows.Count == 0)
+            ArchiveHandler.ArchiveItem item = selectedResult();
+            if (item == null)
             {
                 reviewButton.Enabled = false;
                 downloadButton.Enabled = false;
@@ -163,22 +174,18 @@ namespace SoftwareShelf_Desktop
                 return;
             }
 
-            DataGridViewRow row = resultsGrid.SelectedRows[0];
+            resultDescription.Text = item.description;
 
-            resultDescription.Text = row.Cells["description"].Value.ToString();
-
-            string identifier = row.Cells["identifier"].Value.ToString();
             resultPreview.CancelAsync();
-            resultPreview.ImageLocation = "http://archive.org/download/" + identifier + "/__ia_thumb.jpg";
-            creatorInfoLbl.Text = "Creator: " + row.Cells["creator"].Value.ToString();
-            publishedInfoLbl.Text = "Published: " + row.Cells["date"].Value.ToString();
-            topicInfoLbl.Text = "Topic: " + row.Cells["topic"].Value.ToString();
+            resultPreview.ImageLocation = "http://archive.org/download/" + item.identifier + "/__ia_thumb.jpg";
+            creatorInfoLbl.Text = "Creator: " + item.creator;
+            publishedInfoLbl.Text = "Published: " + item.date;
+            topicInfoLbl.Text = "Topic: " + item.topic;
 
             downloadButton.Enabled = true;
             reviewButton.Enabled = true;
 
-            long sizeInBytes = Convert.ToInt64(row.Cells["resultSize"].Value);
-            zipBtn.Enabled = sizeInBytes < 40L * 1024 * 1024 * 1024;
+            zipBtn.Enabled = item.size < 40L * 1024 * 1024 * 1024;
         }
 
         private void showDownloadsIfQueued(MethodInvoker queue)
@@ -193,12 +200,12 @@ namespace SoftwareShelf_Desktop
 
         private void downloadButton_Click(object sender, EventArgs e)
         {
-            if (resultsGrid.SelectedRows.Count > 0)
+            ArchiveHandler.ArchiveItem item = selectedResult();
+            if (item != null)
             {
-                string identifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
                 showDownloadsIfQueued(delegate
                 {
-                    DownloadForm downloadForm = new DownloadForm(identifier, downloadHandler);
+                    DownloadForm downloadForm = new DownloadForm(item.identifier, item.category, downloadHandler);
                     downloadForm.ShowDialog();
                 });
             }
@@ -334,9 +341,10 @@ namespace SoftwareShelf_Desktop
 
         private void zipBtn_Click(object sender, EventArgs e)
         {
-            if (resultsGrid.SelectedRows.Count > 0)
+            ArchiveHandler.ArchiveItem item = selectedResult();
+            if (item != null)
             {
-                string itemIdentifier = resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString();
+                string itemIdentifier = item.identifier;
                 string fileName = itemIdentifier + ".zip";
                 Uri URL = new Uri("http://archive.org/compress/" + Uri.EscapeDataString(itemIdentifier));
                 showDownloadsIfQueued(delegate
@@ -384,8 +392,8 @@ namespace SoftwareShelf_Desktop
 
         private void latestBtn_Click(object sender, EventArgs e)
         {
-            string mediaType = getMediaType(typeDropDown.SelectedItem.ToString());
-            showResults(ArchiveHandler.GetLatestItems(mediaType));
+            string category = typeDropDown.SelectedItem.ToString();
+            showResults(ArchiveHandler.GetLatestItems(getMediaType(category)), category);
         }
 
         private void resultPreview_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
@@ -404,7 +412,12 @@ namespace SoftwareShelf_Desktop
 
         private void reviewButton_Click(object sender, EventArgs e)
         {
-            ReviewForm reviewForm = new ReviewForm(resultsGrid.SelectedRows[0].Cells["identifier"].Value.ToString());
+            ArchiveHandler.ArchiveItem item = selectedResult();
+            if (item == null)
+            {
+                return;
+            }
+            ReviewForm reviewForm = new ReviewForm(item.identifier);
             reviewForm.ShowDialog();
         }
     }

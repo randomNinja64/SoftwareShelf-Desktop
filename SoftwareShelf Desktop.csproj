@@ -85,6 +85,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Handlers\Review.cs" />
     <Compile Include="Handlers\SizeFormatter.cs" />
+    <Compile Include="Handlers\FileExclusions.cs" />
+    <Compile Include="Handlers\SortableBindingList.cs" />
     <Compile Include="Forms\ReviewForm.cs">
       <SubType>Form</SubType>
     </Compile>
