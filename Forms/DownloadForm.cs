@@ -67,11 +67,10 @@ namespace SoftwareShelf_Desktop
 
         private void filterTxt_TextChanged(object sender, EventArgs e)
         {
-            string filter = filterTxt.Text.ToLower();
             List<ArchiveHandler.ArchiveFile> filteredItems = new List<ArchiveHandler.ArchiveFile>();
             foreach (ArchiveHandler.ArchiveFile item in files)
             {
-                if (item.name.ToLower().Contains(filter))
+                if (item.name.IndexOf(filterTxt.Text, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     filteredItems.Add(item);
                 }
