@@ -150,50 +150,8 @@ namespace SoftwareShelf_Desktop
         // Function to download item
         private void downloadItem(Download downloadItem, string destination)
         {
-            // Split the URL into segments
-            Uri uri = downloadItem.downloadUrl;
-            string[] segments = uri.AbsolutePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < segments.Length; i++)
-            {
-                segments[i] = Uri.UnescapeDataString(segments[i]);
-            }
-
-            // Find the index of the download identifier in the segments.
-            int identifierIndex = Array.IndexOf(segments, downloadItem.downloadIdentifier);
-
-            // If the download identifier is found, remove any segments before it.
-            if (identifierIndex >= 0)
-            {
-                string[] tail = new string[segments.Length - identifierIndex];
-                Array.Copy(segments, identifierIndex, tail, 0, tail.Length);
-                segments = tail;
-            }
-            else
-            {
-                // If not found, default to using the provided downloadIdentifier.
-                segments = new string[] { downloadItem.downloadIdentifier };
-            }
-
-            for (int i = 0; i < segments.Length; i++)
-            {
-                segments[i] = SanitizePathSegment(segments[i]);
-            }
-
-            // Build the destination folder path using all segments except the last one (assumed to be the file name).
             // A compress URL has only the identifier, so the zip lands in that folder.
-            if (segments.Length > 1)
-            {
-                string folderStructure = segments[0];
-                for (int i = 1; i < segments.Length - 1; i++)
-                {
-                    folderStructure = Path.Combine(folderStructure, segments[i]);
-                }
-                destination = Path.Combine(destination, folderStructure);
-            }
-            else
-            {
-                destination = Path.Combine(destination, segments[0]);
-            }
+            destination = Path.Combine(destination, GetRelativeFolder(downloadItem));
 
             Directory.CreateDirectory(destination);
 
@@ -239,7 +197,7 @@ namespace SoftwareShelf_Desktop
             string downloadUrl = downloadItem.downloadUrl.ToString();
 
             // If the user is trying to download a torrent file and process torrents is disabled, download the .torrent singlethreaded
-            if (!Properties.Settings.Default.TorrentProcessing && downloadUrl.ToLower().EndsWith(".torrent"))
+            if (!Properties.Settings.Default.TorrentProcessing && downloadUrl.EndsWith(".torrent", StringComparison.OrdinalIgnoreCase))
             {
                 downloadItemSinglethreaded(downloadItem);
                 return;
@@ -272,7 +230,7 @@ namespace SoftwareShelf_Desktop
                     int exitCode = process.ExitCode;
                     if (!downloadItem.cancelRequested && exitCode != 0)
                     {
-                        MessageBox.Show("Error 22: File Download Failed. Aria2 exited with code " + exitCode + ".\n\nIf this continues, please try the ZIP option or turn Aria2 off.");
+                        ShowAria2Failed("Aria2 exited with code " + exitCode + ".");
                     }
                     else if (!downloadItem.cancelRequested)
                     {
@@ -292,7 +250,7 @@ namespace SoftwareShelf_Desktop
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                MessageBox.Show("Error 22: File Download Failed. Aria2 could not start: " + ex + "\n\nIf this continues, please try the ZIP option or turn Aria2 off.");
+                ShowAria2Failed("Aria2 could not start: " + ex);
                 CompleteDownloadOnUi(downloadItem);
                 return;
             }
@@ -315,9 +273,10 @@ namespace SoftwareShelf_Desktop
             string speed = null;
 
             // Check if the output contains a % sign and does not contain "archive.org"
-            if (aria2output.Contains("%") && !aria2output.Contains("archive.org") && aria2output.IndexOf("%") >= 3)
+            int percentIndex = aria2output.IndexOf("%");
+            if (percentIndex >= 3 && !aria2output.Contains("archive.org"))
             {
-                string progress = aria2output.Substring(aria2output.IndexOf("%") - 3, 3);
+                string progress = aria2output.Substring(percentIndex - 3, 3);
                 string digits = string.Empty;
                 foreach (char c in progress)
                 {
@@ -332,9 +291,11 @@ namespace SoftwareShelf_Desktop
                     hasProgress = true;
                 }
 
-                if (aria2output.Contains("DL:") && aria2output.Contains("ETA:"))
+                int dlIndex = aria2output.IndexOf("DL:");
+                int etaIndex = aria2output.IndexOf("ETA:");
+                if (dlIndex >= 0 && etaIndex >= 0)
                 {
-                    speed = aria2output.Substring(aria2output.IndexOf("DL:") + 3, aria2output.IndexOf("ETA:") - aria2output.IndexOf("DL:") - 3);
+                    speed = aria2output.Substring(dlIndex + 3, etaIndex - dlIndex - 3);
                     speed = speed.Trim();
                 }
             }
@@ -466,28 +427,51 @@ namespace SoftwareShelf_Desktop
         {
             WebClient client = download.WebClient;
             download.WebClient = null;
-            if (client != null)
-            {
-                try
-                {
-                    client.Dispose();
-                }
-                catch (Exception)
-                {
-                }
-            }
+            DisposeQuietly(client);
 
             Process process = download.aria2Process;
             download.aria2Process = null;
-            if (process != null)
+            DisposeQuietly(process);
+        }
+
+        private static string GetRelativeFolder(Download download)
+        {
+            string[] segments = download.downloadUrl.AbsolutePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < segments.Length; i++)
             {
-                try
-                {
-                    process.Dispose();
-                }
-                catch (Exception)
-                {
-                }
+                segments[i] = Uri.UnescapeDataString(segments[i]);
+            }
+
+            int start = Array.IndexOf(segments, download.downloadIdentifier);
+            if (start < 0)
+            {
+                segments = new string[] { download.downloadIdentifier };
+                start = 0;
+            }
+
+            // Every segment from the identifier through the parent of the file name.
+            int end = Math.Max(start + 1, segments.Length - 1);
+            string folder = SanitizePathSegment(segments[start]);
+            for (int i = start + 1; i < end; i++)
+            {
+                folder = Path.Combine(folder, SanitizePathSegment(segments[i]));
+            }
+            return folder;
+        }
+
+        private static void DisposeQuietly(IDisposable disposable)
+        {
+            if (disposable == null)
+            {
+                return;
+            }
+
+            try
+            {
+                disposable.Dispose();
+            }
+            catch (Exception)
+            {
             }
         }
 
@@ -503,6 +487,11 @@ namespace SoftwareShelf_Desktop
         private void ShowDownloadFailed(Exception error)
         {
             MessageBox.Show("Error 22: File Download Failed: " + error + "\n\nIf this continues, please try using the Aria2 or ZIP option.");
+        }
+
+        private void ShowAria2Failed(string detail)
+        {
+            MessageBox.Show("Error 22: File Download Failed. " + detail + "\n\nIf this continues, please try the ZIP option or turn Aria2 off.");
         }
 
         private void StopTimer()

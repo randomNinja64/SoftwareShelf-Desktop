@@ -11,7 +11,22 @@ namespace SoftwareShelf_Desktop
 {
     internal class ArchiveHandler
     {
+        internal const string BaseUrl = "http://archive.org/";
+
         private static Dictionary<string, string> itemMetadata = new Dictionary<string, string>();
+
+        internal static Uri FileDownloadUrl(string identifier, string relativeFile)
+        {
+            StringBuilder path = new StringBuilder(BaseUrl + "download/");
+            path.Append(Uri.EscapeDataString(identifier));
+            string[] parts = relativeFile.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string part in parts)
+            {
+                path.Append('/');
+                path.Append(Uri.EscapeDataString(part));
+            }
+            return new Uri(path.ToString());
+        }
 
         public struct ArchiveFile
         {
@@ -135,12 +150,7 @@ namespace SoftwareShelf_Desktop
                 clauses.Add("year:(" + EscapeLucene(yearText) + ")");
             }
 
-            string combined = clauses[0];
-            for (int i = 1; i < clauses.Count; i++)
-            {
-                combined += " AND " + clauses[i];
-            }
-            return combined;
+            return string.Join(" AND ", clauses.ToArray());
         }
 
         private static string EscapeLucene(string value)
@@ -160,7 +170,7 @@ namespace SoftwareShelf_Desktop
         private static List<ArchiveItem> RunQuery(string query, string sort)
         {
             itemMetadata.Clear();
-            string url = "http://archive.org/advancedsearch.php?q=" + Uri.EscapeDataString(query) + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&rows=100&output=json";
+            string url = BaseUrl + "advancedsearch.php?q=" + Uri.EscapeDataString(query) + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&rows=100&output=json";
             if (!string.IsNullOrEmpty(sort))
             {
                 url += "&sort[]=" + sort;
@@ -186,7 +196,7 @@ namespace SoftwareShelf_Desktop
                 return json;
             }
 
-            json = GetJsonResponse("http://archive.org/metadata/" + identifier);
+            json = GetJsonResponse(BaseUrl + "metadata/" + identifier);
             if (json != null)
             {
                 itemMetadata[identifier] = json;
