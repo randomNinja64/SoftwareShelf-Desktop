@@ -32,7 +32,6 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.progressTimer = new System.Windows.Forms.Timer(this.components);
             this.downloadTab = new System.Windows.Forms.TabPage();
             this.torrentChk = new System.Windows.Forms.CheckBox();
             this.threadsNum = new System.Windows.Forms.NumericUpDown();
@@ -89,11 +88,6 @@
             this.controlTabs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).BeginInit();
             this.SuspendLayout();
-            // 
-            // progressTimer
-            // 
-            this.progressTimer.Interval = 500;
-            this.progressTimer.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // downloadTab
             // 
@@ -556,6 +550,7 @@
             this.resultsGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.resultsGrid.Size = new System.Drawing.Size(490, 411);
             this.resultsGrid.TabIndex = 1;
+            this.resultsGrid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.resultsGrid_CellFormatting);
             this.resultsGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellDoubleClick);
             this.resultsGrid.SelectionChanged += new System.EventHandler(this.resultsGrid_SelectionChanged);
             this.resultsGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.resultsGrid_KeyDown);
@@ -580,7 +575,7 @@
             // 
             // resultSize
             // 
-            this.resultSize.HeaderText = "Size (KiB)";
+            this.resultSize.HeaderText = "Size";
             this.resultSize.MinimumWidth = 10;
             this.resultSize.Name = "resultSize";
             this.resultSize.ReadOnly = true;
@@ -693,7 +688,6 @@
         }
 
         #endregion
-        public System.Windows.Forms.Timer progressTimer;
         private System.Windows.Forms.TabPage downloadTab;
         private System.Windows.Forms.NumericUpDown threadsNum;
         private System.Windows.Forms.Label threadLbl;

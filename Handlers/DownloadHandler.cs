@@ -12,20 +12,18 @@ namespace SoftwareShelf_Desktop
         public BindingList<Download> Downloads;
 
         private readonly Control ui;
-        private readonly Timer progressTimer;
         private Download activeDownload;
 
-        public DownloadHandler(Control ui, Timer progressTimer)
+        public DownloadHandler(Control ui)
         {
             this.ui = ui;
-            this.progressTimer = progressTimer;
             this.Downloads = new BindingList<Download>();
         }
 
         // Function to Add Download
         public void addDownload(Uri downloadUrl, string identifier, string fileName)
         {
-            string safeName = SanitizePathSegment(fileName);
+            string safeName = SanitizePathSegment(fileName.Substring(fileName.LastIndexOf('/') + 1));
             RunOnUi(delegate
             {
                 Downloads.Add(new Download(downloadUrl, identifier, safeName));
@@ -126,12 +124,10 @@ namespace SoftwareShelf_Desktop
 
             if (Downloads.Count == 0)
             {
-                progressTimer.Stop();
                 return;
             }
 
             activeDownload = Downloads[0];
-            progressTimer.Start();
 
             try
             {
@@ -139,7 +135,6 @@ namespace SoftwareShelf_Desktop
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 ShowDownloadFailed(ex);
                 CompleteDownloadOnUi(activeDownload);
             }
@@ -178,7 +173,7 @@ namespace SoftwareShelf_Desktop
             }
 
             // Build the destination folder path using all segments except the last one (assumed to be the file name).
-            // A compress URL has only the identifier, so the zip lands in that folder.
+            // A compress URL has only the identifier, so the zip lands in the downloads folder root.
             if (segments.Length > 1)
             {
                 string folderStructure = segments[0];
@@ -187,10 +182,6 @@ namespace SoftwareShelf_Desktop
                     folderStructure = Path.Combine(folderStructure, segments[i]);
                 }
                 destination = Path.Combine(destination, folderStructure);
-            }
-            else
-            {
-                destination = Path.Combine(destination, segments[0]);
             }
 
             Directory.CreateDirectory(destination);
@@ -245,7 +236,7 @@ namespace SoftwareShelf_Desktop
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = "aria2c.exe";
-            startInfo.Arguments = "-x " + numChunks + " -d \"" + destination + "\" -o \"" + downloadItem.fileName + "\" --allow-overwrite=true --seed-time=0 --check-certificate=false \"" + downloadUrl + "\" ";
+            startInfo.Arguments = "-x " + numChunks + " -s " + numChunks + " -d \"" + destination + "\" -o \"" + downloadItem.fileName + "\" -c --always-resume=false --seed-time=0 --check-certificate=false \"" + downloadUrl + "\" ";
             startInfo.CreateNoWindow = true;
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
@@ -289,7 +280,6 @@ namespace SoftwareShelf_Desktop
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 MessageBox.Show("Error 22: File Download Failed. Aria2 could not start: " + ex + "\n\nIf this continues, please try the ZIP option or turn Aria2 off.");
                 CompleteDownloadOnUi(downloadItem);
                 return;
@@ -300,7 +290,6 @@ namespace SoftwareShelf_Desktop
 
         private void updateAria2Progress(Download download, string aria2output)
         {
-            Console.WriteLine(aria2output);
             if (aria2output == null)
             {
                 return;
@@ -356,7 +345,7 @@ namespace SoftwareShelf_Desktop
 
                 if (speed != null)
                 {
-                    download.downloadSpeed = speed + "/s";
+                    download.downloadSpeed = speed.Replace("iB", "B") + "/s";
                 }
 
                 if (sslFailure && !download.cancelRequested)
@@ -379,7 +368,7 @@ namespace SoftwareShelf_Desktop
             double seconds = download.downloadTime.Elapsed.TotalSeconds;
             if (seconds > 0)
             {
-                download.downloadSpeed = (bytesReceived / 1024d / seconds).ToString("0.00") + " KB/s";
+                download.downloadSpeed = SizeFormatter.Format((long)(bytesReceived / seconds)) + "/s";
             }
         }
 
@@ -411,7 +400,8 @@ namespace SoftwareShelf_Desktop
                 return;
             }
 
-            if (download.cancelRequested)
+            // Aria2 keeps the partial file so the next attempt can resume it.
+            if (download.cancelRequested && download.aria2Process == null)
             {
                 DeleteCanceledFile(download);
             }
@@ -420,8 +410,6 @@ namespace SoftwareShelf_Desktop
             {
                 download.downloadTime.Stop();
             }
-
-            Console.WriteLine("Download completed in " + download.downloadTime.Elapsed.TotalSeconds + " seconds");
 
             // Clear the active slot before Remove. ListChanged can re-enter, and a
             // second finish must see that this download is no longer active.
@@ -433,7 +421,6 @@ namespace SoftwareShelf_Desktop
 
             if (Application.OpenForms.Count == 0)
             {
-                progressTimer.Stop();
                 return;
             }
 

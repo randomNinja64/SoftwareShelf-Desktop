@@ -12,7 +12,7 @@ namespace SoftwareShelf_Desktop
         public MainForm()
         {
             InitializeComponent();
-            downloadHandler = new DownloadHandler(this, progressTimer);
+            downloadHandler = new DownloadHandler(this);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -23,6 +23,7 @@ namespace SoftwareShelf_Desktop
                 if (setDownloadPath() == 1)
                 {
                     Application.Exit();
+                    return;
                 }
             }
 
@@ -137,6 +138,21 @@ namespace SoftwareShelf_Desktop
             }
         }
 
+        private void resultsGrid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex != resultSize.Index || e.Value == null)
+            {
+                return;
+            }
+
+            long bytes;
+            if (long.TryParse(e.Value.ToString(), out bytes))
+            {
+                e.Value = SizeFormatter.Format(bytes);
+                e.FormattingApplied = true;
+            }
+        }
+
         private void resultsGrid_SelectionChanged(object sender, EventArgs e)
         {
             if (resultsGrid.SelectedRows.Count == 0)
@@ -161,9 +177,8 @@ namespace SoftwareShelf_Desktop
             downloadButton.Enabled = true;
             reviewButton.Enabled = true;
 
-            long sizeInKiB = Convert.ToInt64(row.Cells["resultSize"].Value);
-            double sizeInGB = sizeInKiB / (1024.0 * 1024.0);
-            zipBtn.Enabled = sizeInGB < 40;
+            long sizeInBytes = Convert.ToInt64(row.Cells["resultSize"].Value);
+            zipBtn.Enabled = sizeInBytes < 40L * 1024 * 1024 * 1024;
         }
 
         private void showDownloadsIfQueued(MethodInvoker queue)
@@ -222,11 +237,6 @@ namespace SoftwareShelf_Desktop
             {
                 return 1;
             }
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            downloadsDataGridView.Refresh();
         }
 
         private void cancelDlButton_Click(object sender, EventArgs e)
@@ -315,8 +325,8 @@ namespace SoftwareShelf_Desktop
 
         private void boostChk_Click(object sender, EventArgs e)
         {
-            //If progress timer is running, do nothing
-            if (progressTimer.Enabled)
+            //If downloads are running, do nothing
+            if (downloadHandler.Downloads.Count > 0)
             {
                 boostChk.Checked = !boostChk.Checked;
             }

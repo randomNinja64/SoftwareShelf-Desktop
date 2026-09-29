@@ -80,6 +80,7 @@ namespace SoftwareShelf_Desktop
                 }
                 filesListBox.SetItemChecked(index, include);
             }
+            UpdateSelectedSize();
         }
 
         private void SetVisibleChecks(bool include)
@@ -94,6 +95,25 @@ namespace SoftwareShelf_Desktop
         {
             ArchiveHandler.ArchiveFile file = (ArchiveHandler.ArchiveFile)filesListBox.Items[e.Index];
             checkedFiles[file.name] = e.NewValue == CheckState.Checked;
+            UpdateSelectedSize();
+        }
+
+        private void UpdateSelectedSize()
+        {
+            long total = 0;
+            foreach (ArchiveHandler.ArchiveFile file in filesListBox.Items)
+            {
+                bool include;
+                if (file.size < 0 || !checkedFiles.TryGetValue(file.name, out include) || !include)
+                {
+                    continue;
+                }
+                total += file.size;
+            }
+
+            downloadSelectedBtn.Text = total > 0
+                ? "&Download Selected (" + SizeFormatter.Format(total) + ")"
+                : "&Download Selected";
         }
 
         private static Uri ArchiveDownloadUri(string identifier, string relativeFile)

@@ -24,7 +24,7 @@ namespace SoftwareShelf_Desktop
                 {
                     return name;
                 }
-                return name + " (" + (size / 1024) + " KiB)";
+                return name + " (" + SizeFormatter.Format(size) + ")";
             }
         }
 
@@ -62,8 +62,6 @@ namespace SoftwareShelf_Desktop
 
         public static List<ArchiveItem> GetLatestItems(string mediaType = "")
         {
-            Console.WriteLine("[Info] Grabbing latest items for selected type.");
-
             mediaType = (mediaType ?? "").Trim();
             string query = string.IsNullOrEmpty(mediaType) ? "mediatype:*" : "mediatype:(" + mediaType + ")";
             return RunQuery(query, "addeddate+desc");
@@ -111,8 +109,6 @@ namespace SoftwareShelf_Desktop
 
         private static string BuildSearchQuery(string query, string mediaType, string creatorName, string topicName, string yearText)
         {
-            Console.WriteLine("[Info] Building search query.");
-
             List<string> clauses = new List<string>();
             if (query.Length > 0)
             {
@@ -166,8 +162,6 @@ namespace SoftwareShelf_Desktop
                 url += "&sort[]=" + sort;
             }
 
-            Console.WriteLine("[Info] Searching:" + url);
-
             string resultsJson = GetJsonResponse(url);
             if (resultsJson == null)
             {
@@ -196,8 +190,6 @@ namespace SoftwareShelf_Desktop
 
         internal static string GetJsonResponse(string url)
         {
-            Console.WriteLine("[Info] Getting JSON Response.");
-
             try
             {
                 using (WebClient client = new WebClient())
@@ -214,8 +206,6 @@ namespace SoftwareShelf_Desktop
 
         private static List<ArchiveItem> ParseSearchResults(string resultsJson)
         {
-            Console.WriteLine("[Info] Parsing results.");
-
             JArray results_array = null;
             try
             {
@@ -254,7 +244,7 @@ namespace SoftwareShelf_Desktop
                     {
                         title = item["title"].ToString(),
                         identifier = item["identifier"].ToString(),
-                        size = (Int64)item["item_size"] / 1024
+                        size = (Int64)item["item_size"]
                     };
 
                     // If no value exists for downloads, set it to 0
@@ -330,7 +320,6 @@ namespace SoftwareShelf_Desktop
 
         internal static List<ArchiveFile> ParseAvailableFiles(string metadata_json)
         {
-            Console.WriteLine("[Info] Parsing available files.");
             List<ArchiveFile> availableFiles = new List<ArchiveFile>();
 
             try
