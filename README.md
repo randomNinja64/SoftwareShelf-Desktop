@@ -32,8 +32,8 @@ The software can be built by building the solution in Visual Studio or by runnin
     - **Download** - opens a form allowing for files to be selected/downloaded
     - **ZIP** - downloads full archive item as a single ZIP file (only supported for items under 40 GB)
 - **Browse Tab**
-  - **Collection Search** - searches collections by keyword and selected type
-  - **Collections** - list of collections matching selected type or search query (default: top software collections)
+  - **Collection Search** - searches collections by keyword and selected type (if blank, results will list collections matching type and sort values)
+  - **Collections** - list of collections matching selected type and search query (default: top software collections)
   - **Sort** - how collections in the list are sorted (`Top` for most downloaded or `Latest` for most recently updated)
   - **Type** - `Audio`, `Books`, `Images`, `Movies`, or `Software` (default `Software`)
   - **Save/Remove Collection** - saves/removes a collection to/from your saved collections list
