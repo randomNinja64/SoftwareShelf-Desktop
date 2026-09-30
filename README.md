@@ -32,13 +32,13 @@ The software can be built by building the solution in Visual Studio or by runnin
     - **Download** - opens a form allowing for files to be selected/downloaded
     - **ZIP** - downloads full archive item as a single ZIP file (only supported for items under 40 GB)
 - **Browse Tab**
-  - **Collection Search** - searches collections of the selected type; leave it blank to list them by Sort. **Search** runs it, and so does Enter
-  - **Collections** - loads when the tab is opened; choosing a collection loads its items into the grid
-    - **Save Collection** / **Remove Collection** - one button: saves the selected collection, or removes it when that collection is already saved
-    - **Sort** - `Top` (default; most downloaded collections) or `Latest` (collections that most recently received an item of the selected type); orders the collections list only. Items in a collection are always newest first. Changing it reloads the list
-    - **Type** - `Audio`, `Books`, `Images`, `Movies`, or `Software` (default `Software`); changing it reloads the list
-    - **Saved Collections** - lists saved collections; each opens with the type it was saved under
-  - **Results Grid** and **Result Preview** - same as the Search tab, including Reviews, Download, and ZIP
+  - **Collection Search** - searches collections by keyword and selected type
+  - **Collections** - list of collections matching selected type or search query (default: top software collections)
+  - **Sort** - how collections in the list are sorted (`Top` for most downloaded or `Latest` for most recently updated)
+  - **Type** - `Audio`, `Books`, `Images`, `Movies`, or `Software` (default `Software`)
+  - **Save/Remove Collection** - saves/removes a collection to/from your saved collections list
+  - **Saved Collections** - a list of collections saved for later viewing 
+  - **Results Grid**, **Result Preview** - functions the same as the Search tab
 - **Downloads Tab**
   - **Downloads Grid** - Downloads are shown in a grid containing their file name, speed, and progress.
   - **Downloads Directory** - shows the current directory for downloaded files
