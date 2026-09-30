@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
@@ -44,6 +43,18 @@ namespace SoftwareShelf_Desktop
             public string category { get; set; }
         }
 
+        public class ArchiveCollection
+        {
+            public string identifier;
+            public string title;
+            // Type dropdown label the collection was listed or saved under.
+            public string category;
+
+            public override string ToString() => title;
+        }
+
+        private const string ItemFields = "identifier,title,description,creator,subject,downloads,item_size,avg_rating,date,year";
+
         // Function to perform searches on Archive.org
         public static List<ArchiveItem> Search(string query, string mediaType = "", string creatorName = "", string topicName = "", string yearText = "")
         {
@@ -66,7 +77,142 @@ namespace SoftwareShelf_Desktop
         {
             mediaType = (mediaType ?? "").Trim();
             string query = string.IsNullOrEmpty(mediaType) ? "mediatype:*" : "mediatype:(" + mediaType + ")";
-            return RunQuery(query, "addeddate+desc");
+            return RunQuery(query, "addeddate:desc");
+        }
+
+        // A keyword search on Latest sorts by publicdate; updatedate does not move when items are added.
+        public static List<ArchiveCollection> GetCollections(string mediaType, string category, bool byDownloads, string keyword)
+        {
+            string query = CollectionQuery(mediaType);
+            if (query == null)
+            {
+                return new List<ArchiveCollection>();
+            }
+
+            keyword = (keyword ?? "").Trim();
+            if (keyword.Length == 0 && !byDownloads)
+            {
+                return GetRecentlyUpdatedCollections(mediaType, category);
+            }
+            if (keyword.Length > 0)
+            {
+                query = "(" + EscapeLucene(keyword) + ") AND (" + query + ")";
+            }
+
+            JArray results_array = FetchResults(query, byDownloads ? "downloads:desc" : "publicdate:desc", "identifier,title");
+            if (results_array == null)
+            {
+                return null;
+            }
+
+            List<ArchiveCollection> collections = new List<ArchiveCollection>();
+            foreach (JToken item in results_array)
+            {
+                JToken fields = item["fields"] ?? item;
+                if (fields["identifier"] == null)
+                {
+                    continue;
+                }
+
+                ArchiveCollection collection = new ArchiveCollection();
+                collection.identifier = fields["identifier"].ToString();
+                collection.title = fields["title"] != null ? fields["title"].ToString() : collection.identifier;
+                collection.category = category;
+                collections.Add(collection);
+            }
+            return collections;
+        }
+
+        // Collections have no field that changes when an item is added, so they are
+        // ordered by the newest item of this type that each one contains.
+        private static List<ArchiveCollection> GetRecentlyUpdatedCollections(string mediaType, string category)
+        {
+            string url = "http://archive.org/advancedsearch.php?q=" + Uri.EscapeDataString("mediatype:(" + mediaType + ")") + "&fl[]=collection&sort[]=" + Uri.EscapeDataString("addeddate desc") + "&rows=2000&output=json";
+            string itemsJson = GetJsonResponse(url);
+            JArray items = ReadResultsArray(itemsJson, false);
+            if (items == null)
+            {
+                ShowFetchError(itemsJson == null);
+                return null;
+            }
+
+            List<string> identifiers = new List<string>();
+            foreach (JToken item in items)
+            {
+                JToken parents = item["collection"];
+                if (parents == null)
+                {
+                    continue;
+                }
+
+                foreach (JToken parent in parents is JArray ? (IEnumerable<JToken>)parents : new JToken[] { parents })
+                {
+                    string identifier = parent.ToString().Replace("\"", "");
+                    if (identifier.Length > 0 && identifiers.Count < 100 && !identifiers.Contains(identifier))
+                    {
+                        identifiers.Add(identifier);
+                    }
+                }
+            }
+
+            List<ArchiveCollection> collections = new List<ArchiveCollection>();
+            if (identifiers.Count == 0)
+            {
+                return collections;
+            }
+
+            JArray titles = FetchResults("mediatype:collection AND identifier:(\"" + string.Join("\" OR \"", identifiers.ToArray()) + "\")", "", "identifier,title");
+            if (titles == null)
+            {
+                return null;
+            }
+
+            Dictionary<string, string> titleById = new Dictionary<string, string>();
+            foreach (JToken item in titles)
+            {
+                JToken fields = item["fields"] ?? item;
+                if (fields["identifier"] != null && fields["title"] != null)
+                {
+                    titleById[fields["identifier"].ToString()] = fields["title"].ToString();
+                }
+            }
+
+            foreach (string identifier in identifiers)
+            {
+                ArchiveCollection collection = new ArchiveCollection();
+                collection.identifier = identifier;
+                string title;
+                collection.title = titleById.TryGetValue(identifier, out title) ? title : identifier;
+                collection.category = category;
+                collections.Add(collection);
+            }
+            return collections;
+        }
+
+        // Quoted, not escaped: the website search rejects a backslash before a hyphen.
+        public static List<ArchiveItem> GetCollectionItems(string identifier, string mediaType)
+        {
+            string query = "collection:(\"" + identifier.Replace("\"", "") + "\") AND mediatype:(" + mediaType + ")";
+            return RunQuery(query, "addeddate:desc");
+        }
+
+        private static string CollectionQuery(string mediaType)
+        {
+            switch (mediaType)
+            {
+                case "software":
+                    return "mediatype:collection AND (subject:software OR collection:softwarelibrary OR collection:open_source_software)";
+                case "movies":
+                    return "mediatype:collection AND collection:moviesandfilms";
+                case "audio":
+                    return "mediatype:collection AND (collection:etree OR collection:librivoxaudio OR collection:audio_bookspoetry)";
+                case "texts":
+                    return "mediatype:collection AND (collection:americana OR collection:gutenberg OR subject:books)";
+                case "image":
+                    return "mediatype:collection AND (collection:flickrcommons OR subject:photographs)";
+                default:
+                    return null;
+            }
         }
 
         public static List<Review> GetReviews(string identifier)
@@ -158,20 +304,79 @@ namespace SoftwareShelf_Desktop
         private static List<ArchiveItem> RunQuery(string query, string sort)
         {
             itemMetadata.Clear();
-            string url = "http://archive.org/advancedsearch.php?q=" + Uri.EscapeDataString(query) + "&fl[]=identifier&fl[]=description&fl[]=title&fl[]=item_size&fl[]=downloads&fl[]=avg_rating&fl[]=creator&fl[]=subject&fl[]=access-restricted-item&fl[]=date&rows=100&output=json";
-            if (!string.IsNullOrEmpty(sort))
+            JArray results_array = FetchResults(query, sort, ItemFields);
+            if (results_array == null)
             {
-                url += "&sort[]=" + sort;
-            }
-
-            string resultsJson = GetJsonResponse(url);
-            if (resultsJson == null)
-            {
-                MessageBox.Show("Error 01: Error retrieving results. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
 
-            return ParseSearchResults(resultsJson);
+            return ParseSearchResults(results_array);
+        }
+
+        // Shows the connection or unreadable-response dialog and returns null on failure.
+        private static JArray FetchResults(string query, string sort, string fields)
+        {
+            // Same metadata search the archive.org website uses. advancedsearch.php
+            // rewrites bare words into a full-text query, which ranks different items.
+            string url = "http://archive.org/services/search/beta/page_production/?user_query=" + Uri.EscapeDataString(query) + "&hits_per_page=100&page=1&aggregations=false&fields=" + fields;
+            if (!string.IsNullOrEmpty(sort))
+            {
+                url += "&sort=" + Uri.EscapeDataString(sort);
+            }
+
+            string resultsJson = GetJsonResponse(url);
+            JArray results_array = ReadResultsArray(resultsJson, true);
+
+            // The website endpoint is an undocumented beta; fall back to advancedsearch.php
+            // only when it fails, not when it returns no results.
+            if (results_array == null)
+            {
+                string fallbackUrl = "http://archive.org/advancedsearch.php?q=" + Uri.EscapeDataString(query) + "&fl[]=access-restricted-item&rows=100&output=json";
+                foreach (string field in fields.Split(','))
+                {
+                    fallbackUrl += "&fl[]=" + field;
+                }
+                if (!string.IsNullOrEmpty(sort))
+                {
+                    fallbackUrl += "&sort[]=" + Uri.EscapeDataString(sort.Replace(':', ' '));
+                }
+
+                string fallbackJson = GetJsonResponse(fallbackUrl);
+                results_array = ReadResultsArray(fallbackJson, false);
+
+                if (results_array == null)
+                {
+                    ShowFetchError(resultsJson == null && fallbackJson == null);
+                    return null;
+                }
+            }
+
+            return results_array;
+        }
+
+        private static void ShowFetchError(bool noResponse)
+        {
+            if (noResponse)
+            {
+                MessageBox.Show("Error 01: Error retrieving results. Please check your Internet connection. Additionally, Archive.org may be down.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                MessageBox.Show("Error 03: The search response could not be read.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static JArray ReadResultsArray(string resultsJson, bool websiteResponse)
+        {
+            try
+            {
+                JObject results_obj = JObject.Parse(resultsJson);
+                return (JArray)(websiteResponse ? results_obj["response"]["body"]["hits"]["hits"] : results_obj["response"]["docs"]);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         internal static string GetItemMetadata(string identifier)
@@ -206,37 +411,17 @@ namespace SoftwareShelf_Desktop
             }
         }
 
-        private static List<ArchiveItem> ParseSearchResults(string resultsJson)
+        private static List<ArchiveItem> ParseSearchResults(JArray results_array)
         {
-            JArray results_array = null;
-            try
-            {
-                JObject results_obj = JObject.Parse(resultsJson);
-                results_array = (JArray)results_obj["response"]["docs"];
-            }
-            catch
-            {
-            }
-
-            if (results_array == null)
-            {
-                MessageBox.Show("Error 03: The search response could not be read.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-
-            if (results_array.Count == 0)
-            {
-                MessageBox.Show("No results found.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return new List<ArchiveItem>();
-            }
-
             List<ArchiveItem> results = new List<ArchiveItem>();
             foreach (var item in results_array)
             {
                 try
                 {
+                    JToken fields = item["fields"] ?? item;
+
                     // Skip items that are access restricted
-                    if (item["access-restricted-item"] != null && (bool)item["access-restricted-item"])
+                    if (fields["access-restricted-item"] != null && (bool)fields["access-restricted-item"])
                     {
                         continue;
                     }
@@ -244,21 +429,21 @@ namespace SoftwareShelf_Desktop
                     // Create a new ArchiveItem
                     ArchiveItem result = new ArchiveItem
                     {
-                        title = item["title"].ToString(),
-                        identifier = item["identifier"].ToString(),
-                        size = (Int64)item["item_size"]
+                        title = fields["title"].ToString(),
+                        identifier = fields["identifier"].ToString(),
+                        size = (Int64)fields["item_size"]
                     };
 
                     // If no value exists for downloads, set it to 0
-                    if (item["downloads"] != null)
+                    if (fields["downloads"] != null)
                     {
-                        result.downloads = (Int64)item["downloads"];
+                        result.downloads = (Int64)fields["downloads"];
                     }
 
                     // Set the description. If it doesn't exist, set it to "No description found."
-                    if (item["description"] != null)
+                    if (fields["description"] != null)
                     {
-                        result.description = item["description"].ToString();
+                        result.description = fields["description"].ToString();
                         // Truncate descriptions at 30,000 characters
                         if (result.description.Length > 30000)
                         {
@@ -271,26 +456,22 @@ namespace SoftwareShelf_Desktop
                     }
 
                     // If no value exists for avg_rating, set it to 0
-                    if (item["avg_rating"] != null)
+                    if (fields["avg_rating"] != null)
                     {
                         double rating;
-                        double.TryParse(item["avg_rating"].ToString(), out rating);
+                        double.TryParse(fields["avg_rating"].ToString(), out rating);
                         result.avgRating = rating;
                     }
 
-                    result.creator = FirstValue(item["creator"]);
+                    result.creator = FirstValue(fields["creator"]);
 
                     result.date = "";
-                    if (item["date"] != null)
+                    if (fields["year"] != null)
                     {
-                        DateTime date;
-                        if (DateTime.TryParseExact(item["date"].ToString(), "M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
-                        {
-                            result.date = date.Year.ToString();
-                        }
+                        result.date = fields["year"].ToString();
                     }
 
-                    result.topic = FirstValue(item["subject"]);
+                    result.topic = FirstValue(fields["subject"]);
 
                     results.Add(result);
                 }

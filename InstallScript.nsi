@@ -3,7 +3,7 @@
 ; Packages the staged release: the app, Aria2 when present, and THIRD_PARTY_LICENSES.
 
 !define PRODUCT_NAME "SoftwareShelf Desktop"
-!define PRODUCT_VERSION "1.6.0"
+!define PRODUCT_VERSION "1.7.0"
 !define PRODUCT_PUBLISHER "SoftwareShelf"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\SoftwareShelf Desktop.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"

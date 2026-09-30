@@ -74,6 +74,19 @@
             this.controlTabs = new System.Windows.Forms.TabControl();
             this.reviewButton = new System.Windows.Forms.Button();
             this.resultPreview = new System.Windows.Forms.PictureBox();
+            this.browseTab = new System.Windows.Forms.TabPage();
+            this.browsePanel = new System.Windows.Forms.Panel();
+            this.collectionSearchLbl = new System.Windows.Forms.Label();
+            this.collectionSearchTxt = new System.Windows.Forms.TextBox();
+            this.collectionSearchBtn = new System.Windows.Forms.Button();
+            this.collectionsLbl = new System.Windows.Forms.Label();
+            this.collectionsList = new System.Windows.Forms.ListBox();
+            this.collectionBtn = new System.Windows.Forms.Button();
+            this.sortLbl = new System.Windows.Forms.Label();
+            this.sortDropDown = new System.Windows.Forms.ComboBox();
+            this.browseTypeLbl = new System.Windows.Forms.Label();
+            this.browseTypeDropDown = new System.Windows.Forms.ComboBox();
+            this.savedBtn = new System.Windows.Forms.Button();
             this.downloadTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.threadsNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.downloadsDataGridView)).BeginInit();
@@ -82,6 +95,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.resultsGrid)).BeginInit();
             this.controlTabs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).BeginInit();
+            this.browseTab.SuspendLayout();
+            this.browsePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // downloadTab
@@ -100,7 +115,7 @@
             this.downloadTab.Name = "downloadTab";
             this.downloadTab.Padding = new System.Windows.Forms.Padding(3);
             this.downloadTab.Size = new System.Drawing.Size(906, 425);
-            this.downloadTab.TabIndex = 1;
+            this.downloadTab.TabIndex = 2;
             this.downloadTab.Text = "Downloads";
             this.downloadTab.UseVisualStyleBackColor = true;
             this.downloadTab.Resize += new System.EventHandler(this.tab_Resize);
@@ -487,7 +502,6 @@
             this.zipBtn.TabIndex = 7;
             this.zipBtn.Text = "&ZIP";
             this.zipBtn.UseVisualStyleBackColor = true;
-            this.zipBtn.Click += new System.EventHandler(this.zipBtn_Click);
             // 
             // downloadButton
             // 
@@ -499,7 +513,6 @@
             this.downloadButton.TabIndex = 6;
             this.downloadButton.Text = "&Download";
             this.downloadButton.UseVisualStyleBackColor = true;
-            this.downloadButton.Click += new System.EventHandler(this.downloadButton_Click);
             // 
             // resultDescription
             // 
@@ -541,10 +554,6 @@
             this.resultsGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.resultsGrid.Size = new System.Drawing.Size(490, 411);
             this.resultsGrid.TabIndex = 1;
-            this.resultsGrid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.resultsGrid_CellFormatting);
-            this.resultsGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsGrid_CellDoubleClick);
-            this.resultsGrid.SelectionChanged += new System.EventHandler(this.resultsGrid_SelectionChanged);
-            this.resultsGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.resultsGrid_KeyDown);
             // 
             // resultName
             // 
@@ -587,6 +596,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.controlTabs.Controls.Add(this.searchTab);
+            this.controlTabs.Controls.Add(this.browseTab);
             this.controlTabs.Controls.Add(this.downloadTab);
             this.controlTabs.Location = new System.Drawing.Point(10, 10);
             this.controlTabs.Margin = new System.Windows.Forms.Padding(1);
@@ -594,6 +604,7 @@
             this.controlTabs.SelectedIndex = 0;
             this.controlTabs.Size = new System.Drawing.Size(914, 451);
             this.controlTabs.TabIndex = 0;
+            this.controlTabs.SelectedIndexChanged += new System.EventHandler(this.controlTabs_SelectedIndexChanged);
             // 
             // reviewButton
             // 
@@ -605,7 +616,6 @@
             this.reviewButton.TabIndex = 8;
             this.reviewButton.Text = "&Reviews";
             this.reviewButton.UseVisualStyleBackColor = true;
-            this.reviewButton.Click += new System.EventHandler(this.reviewButton_Click);
             // 
             // resultPreview
             // 
@@ -618,7 +628,171 @@
             this.resultPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.resultPreview.TabIndex = 1;
             this.resultPreview.TabStop = false;
-            this.resultPreview.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(this.resultPreview_LoadCompleted);
+            // 
+            // browseTab
+            // 
+            this.browseTab.Controls.Add(this.browsePanel);
+            this.browseTab.Location = new System.Drawing.Point(4, 22);
+            this.browseTab.Name = "browseTab";
+            this.browseTab.Padding = new System.Windows.Forms.Padding(3);
+            this.browseTab.Size = new System.Drawing.Size(906, 425);
+            this.browseTab.TabIndex = 1;
+            this.browseTab.Text = "Browse";
+            this.browseTab.UseVisualStyleBackColor = true;
+            this.browseTab.Resize += new System.EventHandler(this.tab_Resize);
+            // 
+            // browsePanel
+            // 
+            this.browsePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.browsePanel.BackColor = System.Drawing.SystemColors.Control;
+            this.browsePanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.browsePanel.Controls.Add(this.collectionSearchLbl);
+            this.browsePanel.Controls.Add(this.collectionSearchTxt);
+            this.browsePanel.Controls.Add(this.collectionSearchBtn);
+            this.browsePanel.Controls.Add(this.collectionsLbl);
+            this.browsePanel.Controls.Add(this.collectionsList);
+            this.browsePanel.Controls.Add(this.collectionBtn);
+            this.browsePanel.Controls.Add(this.sortLbl);
+            this.browsePanel.Controls.Add(this.sortDropDown);
+            this.browsePanel.Controls.Add(this.browseTypeLbl);
+            this.browsePanel.Controls.Add(this.browseTypeDropDown);
+            this.browsePanel.Controls.Add(this.savedBtn);
+            this.browsePanel.Location = new System.Drawing.Point(6, 7);
+            this.browsePanel.Name = "browsePanel";
+            this.browsePanel.Size = new System.Drawing.Size(196, 411);
+            this.browsePanel.TabIndex = 0;
+            // 
+            // collectionSearchLbl
+            // 
+            this.collectionSearchLbl.AutoSize = true;
+            this.collectionSearchLbl.Location = new System.Drawing.Point(5, 3);
+            this.collectionSearchLbl.Margin = new System.Windows.Forms.Padding(3);
+            this.collectionSearchLbl.Name = "collectionSearchLbl";
+            this.collectionSearchLbl.Size = new System.Drawing.Size(99, 13);
+            this.collectionSearchLbl.TabIndex = 7;
+            this.collectionSearchLbl.Text = "&Collection Search:";
+            // 
+            // collectionSearchTxt
+            // 
+            this.collectionSearchTxt.Location = new System.Drawing.Point(5, 22);
+            this.collectionSearchTxt.Name = "collectionSearchTxt";
+            this.collectionSearchTxt.Size = new System.Drawing.Size(184, 20);
+            this.collectionSearchTxt.TabIndex = 0;
+            this.collectionSearchTxt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.collectionSearchTxt_KeyDown);
+            // 
+            // collectionSearchBtn
+            // 
+            this.collectionSearchBtn.Location = new System.Drawing.Point(5, 48);
+            this.collectionSearchBtn.Name = "collectionSearchBtn";
+            this.collectionSearchBtn.Size = new System.Drawing.Size(184, 22);
+            this.collectionSearchBtn.TabIndex = 1;
+            this.collectionSearchBtn.Text = "Searc&h";
+            this.collectionSearchBtn.UseVisualStyleBackColor = true;
+            this.collectionSearchBtn.Click += new System.EventHandler(this.collectionSearchBtn_Click);
+            // 
+            // collectionsLbl
+            // 
+            this.collectionsLbl.AutoSize = true;
+            this.collectionsLbl.Location = new System.Drawing.Point(5, 76);
+            this.collectionsLbl.Margin = new System.Windows.Forms.Padding(3);
+            this.collectionsLbl.Name = "collectionsLbl";
+            this.collectionsLbl.Size = new System.Drawing.Size(66, 13);
+            this.collectionsLbl.TabIndex = 8;
+            this.collectionsLbl.Text = "Collectio&ns:";
+            // 
+            // collectionsList
+            // 
+            this.collectionsList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.collectionsList.FormattingEnabled = true;
+            this.collectionsList.IntegralHeight = false;
+            this.collectionsList.Location = new System.Drawing.Point(5, 95);
+            this.collectionsList.Name = "collectionsList";
+            this.collectionsList.Size = new System.Drawing.Size(184, 162);
+            this.collectionsList.TabIndex = 2;
+            this.collectionsList.SelectedIndexChanged += new System.EventHandler(this.collectionsList_SelectedIndexChanged);
+            this.collectionsList.MouseMove += new System.Windows.Forms.MouseEventHandler(this.collectionsList_MouseMove);
+            this.collectionsList.MouseLeave += new System.EventHandler(this.collectionsList_MouseLeave);
+            // 
+            // collectionBtn
+            // 
+            this.collectionBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.collectionBtn.Enabled = false;
+            this.collectionBtn.Location = new System.Drawing.Point(5, 355);
+            this.collectionBtn.Name = "collectionBtn";
+            this.collectionBtn.Size = new System.Drawing.Size(184, 22);
+            this.collectionBtn.TabIndex = 5;
+            this.collectionBtn.Text = "&Save Collection";
+            this.collectionBtn.UseVisualStyleBackColor = true;
+            this.collectionBtn.Click += new System.EventHandler(this.collectionBtn_Click);
+            // 
+            // sortLbl
+            // 
+            this.sortLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.sortLbl.AutoSize = true;
+            this.sortLbl.Location = new System.Drawing.Point(5, 263);
+            this.sortLbl.Margin = new System.Windows.Forms.Padding(3);
+            this.sortLbl.Name = "sortLbl";
+            this.sortLbl.Size = new System.Drawing.Size(29, 13);
+            this.sortLbl.TabIndex = 3;
+            this.sortLbl.Text = "S&ort:";
+            // 
+            // sortDropDown
+            // 
+            this.sortDropDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.sortDropDown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.sortDropDown.FormattingEnabled = true;
+            this.sortDropDown.Items.AddRange(new object[] {
+            "Latest",
+            "Top"});
+            this.sortDropDown.SelectedIndex = 1;
+            this.sortDropDown.Location = new System.Drawing.Point(5, 282);
+            this.sortDropDown.Name = "sortDropDown";
+            this.sortDropDown.Size = new System.Drawing.Size(184, 21);
+            this.sortDropDown.TabIndex = 3;
+            this.sortDropDown.SelectedIndexChanged += new System.EventHandler(this.browseFilter_Changed);
+            // 
+            // browseTypeLbl
+            // 
+            this.browseTypeLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.browseTypeLbl.AutoSize = true;
+            this.browseTypeLbl.Location = new System.Drawing.Point(5, 309);
+            this.browseTypeLbl.Margin = new System.Windows.Forms.Padding(3);
+            this.browseTypeLbl.Name = "browseTypeLbl";
+            this.browseTypeLbl.Size = new System.Drawing.Size(34, 13);
+            this.browseTypeLbl.TabIndex = 5;
+            this.browseTypeLbl.Text = "&Type:";
+            // 
+            // browseTypeDropDown
+            // 
+            this.browseTypeDropDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.browseTypeDropDown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.browseTypeDropDown.FormattingEnabled = true;
+            this.browseTypeDropDown.Items.AddRange(new object[] {
+            "Audio",
+            "Books",
+            "Images",
+            "Movies",
+            "Software"});
+            this.browseTypeDropDown.SelectedIndex = 4;
+            this.browseTypeDropDown.Location = new System.Drawing.Point(5, 328);
+            this.browseTypeDropDown.Name = "browseTypeDropDown";
+            this.browseTypeDropDown.Size = new System.Drawing.Size(184, 21);
+            this.browseTypeDropDown.TabIndex = 4;
+            this.browseTypeDropDown.SelectedIndexChanged += new System.EventHandler(this.browseFilter_Changed);
+            // 
+            // savedBtn
+            // 
+            this.savedBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.savedBtn.Location = new System.Drawing.Point(5, 383);
+            this.savedBtn.Name = "savedBtn";
+            this.savedBtn.Size = new System.Drawing.Size(184, 22);
+            this.savedBtn.TabIndex = 6;
+            this.savedBtn.Text = "Sa&ved Collections";
+            this.savedBtn.UseVisualStyleBackColor = true;
+            this.savedBtn.Click += new System.EventHandler(this.savedBtn_Click);
             // 
             // MainForm
             // 
@@ -629,7 +803,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(563, 500);
             this.Name = "MainForm";
-            this.Text = "SoftwareShelf Desktop 1.6.0";
+            this.Text = "SoftwareShelf Desktop 1.7.0";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.downloadTab.ResumeLayout(false);
@@ -643,6 +817,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.resultsGrid)).EndInit();
             this.controlTabs.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.resultPreview)).EndInit();
+            this.browseTab.ResumeLayout(false);
+            this.browsePanel.ResumeLayout(false);
+            this.browsePanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -690,6 +867,19 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Downloads;
         public System.Windows.Forms.CheckBox torrentChk;
         private System.Windows.Forms.Button reviewButton;
+        private System.Windows.Forms.TabPage browseTab;
+        private System.Windows.Forms.Panel browsePanel;
+        private System.Windows.Forms.Label collectionSearchLbl;
+        private System.Windows.Forms.TextBox collectionSearchTxt;
+        private System.Windows.Forms.Button collectionSearchBtn;
+        private System.Windows.Forms.Label collectionsLbl;
+        private System.Windows.Forms.ListBox collectionsList;
+        private System.Windows.Forms.Button collectionBtn;
+        private System.Windows.Forms.Label sortLbl;
+        private System.Windows.Forms.ComboBox sortDropDown;
+        private System.Windows.Forms.Label browseTypeLbl;
+        private System.Windows.Forms.ComboBox browseTypeDropDown;
+        private System.Windows.Forms.Button savedBtn;
     }
 }
 
